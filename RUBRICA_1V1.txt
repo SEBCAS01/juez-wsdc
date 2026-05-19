@@ -1,0 +1,276 @@
+RÚBRICA DE EVALUACIÓN OFICIAL - WSDC PARA IA
+DEBATES 1V1 (DOS PERSONAS)
+Adaptación basada en el Manual Oficial WSDC 2024 Judge Academy
+
+================================================================================
+
+INSTRUCCIONES GENERALES:
+
+El modelo de IA debe asignar un puntaje total de 100 puntos a cada debatidor, 
+divididos estrictamente en tres categorías. La evaluación se basa ÚNICAMENTE en 
+lo que fue dicho en el debate (transcripción proporcionada), sin asumir argumentos 
+no presentados.
+
+La evaluación debe ser verificable y documentable: cada puntuación debe poder 
+explicarse mediante referencias específicas a argumentos, estructura o elementos 
+del discurso presentados en el debate.
+
+================================================================================
+
+1. CONTENIDO (Máximo 40 puntos)
+================================================================================
+
+Evalúa el "QUÉ" se dice. La solidez lógica de los argumentos presentados.
+
+CRITERIOS A EVALUAR:
+
+✓ Solidez lógica de argumentos
+  - ¿Los argumentos están fundamentados en premisas claras?
+  - ¿Se utiliza razonamiento válido (deductivo, inductivo, analogía)?
+  - ¿Hay conexión lógica entre premisas y conclusión?
+
+✓ Sustentación de afirmaciones
+  - ¿Se presentan evidencias para respaldar afirmaciones?
+  - ¿Se incluyen ejemplos, analogías o datos específicos?
+  - ¿Las afirmaciones son gratuitas o tienen justificación?
+
+✓ Rebuttal (refutación de argumentos opuestos)
+  - ¿Se identifica específicamente qué argumento opuesto se refuta?
+  - ¿Se explica POR QUÉ el argumento opuesto es incorrecto?
+  - ¿El rebuttal ataca la lógica central o argumentos periféricos?
+
+✓ Identificación y penalización de falacias lógicas
+  Penalización SEVERA por:
+  - Strawman (distorsionar argumento opuesto para hacerlo fácil de refutar)
+  - Ad Hominem (atacar al orador en lugar de su argumento)
+  - Petición de principio (asumir como verdadero lo que se intenta probar)
+  - Afirmaciones gratuitas (sin base, evidencia o justificación)
+  - Apelación a autoridad sin análisis (citar experto sin explicar por qué tiene razón)
+  - Generalización apresurada (sacar conclusiones de evidencia insuficiente)
+  - Evasión (no responder a puntos centrales del oponente)
+
+✓ Coherencia lógica interna
+  - ¿Los argumentos presentados son mutuamente consistentes?
+  - ¿Hay contradicciones internas que debilitan el caso?
+
+✓ Profundidad analítica
+  - ¿Se explica el "cómo" y "por qué" de cada argumento?
+  - ¿Se profundiza en causas, mecanismos y consecuencias?
+  - ¿O solo se declaran afirmaciones sin desarrollo?
+
+RANGO DE PUNTUACIÓN:
+
+36-40 pts  Argumentos excepcionales, muy bien sustentados, rebuttal directo y 
+           efectivo, sin falacias, profundidad excelente
+
+31-35 pts  Argumentos sólidos y claros, sustentación adecuada, rebuttal efectivo 
+           a puntos principales, sin falacias mayores
+
+26-30 pts  Argumentos competentes, sustentación parcial, rebuttal aceptable con 
+           algunas omisiones, pocas o ninguna falacia
+
+21-25 pts  Argumentos débiles, sustentación insuficiente, rebuttal superficial, 
+           algunas falacias presentes
+
+16-20 pts  Argumentos pobres, sustentación mínima, poco rebuttal, múltiples 
+           falacias presentes
+
+11-15 pts  Argumentos insostenibles, casi sin sustentación, sin rebuttal 
+           efectivo, falacias severas
+
+6-10 pts   Argumentos prácticamente inexistentes, rebuttal incoherente, falacias 
+           generalizadas
+
+0-5 pts    Sin argumentación coherente, ininteligible o contradictorio
+
+================================================================================
+
+2. ESTILO TEXTUAL (Máximo 40 puntos)
+================================================================================
+
+Evalúa el "CÓMO" se dice. La claridad retórica, estructura y eficacia comunicativa 
+del discurso.
+
+NOTA IMPORTANTE: Al ser transcripción de voz a texto, NO se evalúa:
+  - Lenguaje corporal o gestos
+  - Contacto visual
+  - Entonación o tono de voz (características inmutables de la voz)
+  - Acento
+  - Velocidad de habla (si la transcripción es directa)
+
+SÍ se evalúa (basado en análisis textual):
+
+✓ Claridad retórica y construcción de oraciones
+  - ¿Las oraciones están bien construidas y son fáciles de seguir?
+  - ¿Se evita la ambigüedad o confusión?
+  - ¿Hay estructura clara en la presentación de ideas?
+
+✓ Riqueza y precisión de vocabulario
+  - ¿Se utiliza vocabulario variado y apropiado?
+  - ¿El registro es profesional pero accesible?
+  - ¿Se evita la jerga excesiva o lenguaje excesivamente simplista?
+  - ¿Las palabras elegidas son precisas para expresar la idea?
+
+✓ Coherencia discursiva
+  - ¿Las ideas se conectan lógicamente?
+  - ¿Hay conectores discursivos ("por lo tanto", "además", "en consecuencia")?
+  - ¿Se mantiene el hilo argumentativo?
+  - ¿Se evita repetición innecesaria?
+
+✓ Estructura y organización del discurso
+  - ¿Hay estructura clara en la presentación (introducción, desarrollo, conclusión)?
+  - ¿Se priorizan visualmente o mediante énfasis los puntos principales?
+  - ¿Las ideas fluyen de manera natural?
+
+✓ Persuasión escrita
+  - ¿El lenguaje refuerza los argumentos?
+  - ¿Se utiliza énfasis estratégico (repetición, paralelismo)?
+  - ¿Hay ejemplos o analogías que clarifiquen?
+  - ¿El lenguaje es convincente sin ser manipulador?
+
+RANGO DE PUNTUACIÓN:
+
+36-40 pts  Excelente claridad, vocabulario muy rico, estructura fluida, alta 
+           coherencia discursiva, muy persuasivo
+
+31-35 pts  Claridad muy buena, vocabulario adecuado y variado, buena estructura, 
+           coherencia clara, persuasivo
+
+26-30 pts  Claridad buena, vocabulario aceptable, estructura reconocible, 
+           coherencia parcial, aceptablemente persuasivo
+
+21-25 pts  Claridad aceptable, vocabulario limitado, estructura desigual, 
+           coherencia parcial, persuasión débil
+
+16-20 pts  Claridad insuficiente, vocabulario básico, estructura confusa, 
+           coherencia débil, poca persuasión
+
+11-15 pts  Claridad baja, vocabulario muy limitado, estructura muy desorganizada, 
+           coherencia débil, poco persuasivo
+
+6-10 pts   Claridad muy baja, incoherencia frecuente, dificultad para seguir, 
+           prácticamente no persuasivo
+
+0-5 pts    Prácticamente ininteligible, incoherente, confuso
+
+================================================================================
+
+3. ESTRATEGIA (Máximo 20 puntos)
+================================================================================
+
+Evalúa el "POR QUÉ" se dice así. Las decisiones tácticas, identificación de 
+puntos clave y choque directo con argumentos opuestos.
+
+CRITERIOS A EVALUAR:
+
+✓ Identificación de puntos clave en debate
+  - ¿Se identifican los temas centrales en disputa?
+  - ¿Se enfoca en lo que REALMENTE importa?
+  - ¿O se desperdicia tiempo en argumentos periféricos?
+
+✓ Priorización de argumentos
+  - ¿Se asigna tiempo/espacio proporcional a la importancia?
+  - ¿Se aborda primero lo más crítico?
+  - ¿Se evita dedicar demasiado tiempo a detalles menores?
+
+✓ Choque Directo (Clash) - Atacar la lógica central del oponente
+  - ¿Se responde específicamente a argumentos del oponente?
+  - ¿Se ataca la premisa o lógica central?
+  - ¿O se ignoran los puntos que generan verdadera controversia?
+  - ¿Se enfrenta el debate en el nivel correcto de análisis?
+
+✓ Consistencia estratégica
+  - ¿La estrategia es coherente a lo largo del discurso?
+  - ¿Hay cambios injustificados en la línea argumentativa?
+  - ¿Se mantiene la dirección del caso o se divaga?
+
+✓ Adaptabilidad a lo que dice el oponente
+  - ¿El debatidor responde a lo que sucede en el debate?
+  - ¿Ajusta su estrategia según los argumentos que aparecen?
+  - ¿O se aferra rígidamente a un plan predeterminado?
+
+✓ Interpretación y aplicación del motivo/tema
+  - ¿Se interpreta la moción de manera justa?
+  - ¿Se aplica de manera relevante a los argumentos?
+
+RANGO DE PUNTUACIÓN:
+
+18-20 pts  Estrategia excelente, identifica todos los puntos clave, clash 
+           directo y efectivo, excelente priorización, muy adaptable
+
+15-17 pts  Estrategia sólida, identifica mayoría de puntos clave, clash 
+           parcial pero efectivo, buena priorización
+
+12-14 pts  Estrategia competente, algunos puntos clave identificados, clash 
+           parcial, priorización aceptable
+
+10-11 pts  Estrategia débil, enfoque en temas secundarios, poco clash directo, 
+           priorización pobre
+
+7-9 pts    Estrategia muy débil, evade debate real, sin clash, priorización 
+           muy pobre o invertida
+
+4-6 pts    Casi sin estrategia aparente, completamente reactivo o completamente 
+           ignorante del debate
+
+0-3 pts    Sin estrategia coherente, evasión total del debate real
+
+================================================================================
+
+CÁLCULO TOTAL DE PUNTAJE:
+
+Puntaje Total = Contenido (0-40) + Estilo (0-40) + Estrategia (0-20) = 0-100 pts
+
+El debatidor con el puntaje total más alto GANA el debate.
+
+MARGEN DE VICTORIA:
+  0-2 pts    Debate muy cerrado
+  3-5 pts    Cerrado pero bastante claro
+  5-10 pts   Claro pero no dominante
+  10-20 pts  Victoria dominante
+  20+ pts    Victoria abrumadora
+
+================================================================================
+
+NOTAS IMPORTANTES PARA LA EVALUACIÓN:
+
+1. EVALÚA SOLO LO DICHO: No construyas análisis que no fue mencionado. No 
+   asumas conexiones lógicas que el debatidor no estableció. Juzga el debate 
+   que sucedió, no el que pudo haber sucedido.
+
+2. NO PENALICES OMISIONES: No penalices por argumentos que PODRÍAN haberse 
+   hecho pero no se hicieron. Evalúa la calidad de lo presentado, no lo 
+   que falta.
+
+3. VERIFICABILIDAD: Cada puntuación debe poder explicarse mediante referencias 
+   específicas al debate. Evita criterios puramente subjetivos.
+
+4. IMPARCIALIDAD: Aplica los mismos estándares a ambos debatidores. No 
+   favorecimiento basado en preferencia personal sobre el tema.
+
+5. CONSISTENCIA: Usa los mismos criterios uniformemente. Si cambias 
+   interpretación, documéntalo.
+
+6. ESPECIFICIDAD: Al explicar puntuaciones, referencia puntos específicos del 
+   debate con ejemplos concretos.
+
+================================================================================
+
+ESTRUCTURA DE SALIDA OBLIGATORIA:
+
+--- ANÁLISIS DE POSTURAS ---
+* Postura A [Debatidor]: [Justificación breve de fortalezas y debilidades]
+* Postura B [Debatidor]: [Justificación breve de fortalezas y debilidades]
+
+--- TABLA DE PUNTAJES ---
+[Debatidor A]: Contenido (.../40) | Estilo (.../40) | Estrategia (.../20) = TOTAL: .../100
+[Debatidor B]: Contenido (.../40) | Estilo (.../40) | Estrategia (.../20) = TOTAL: .../100
+
+--- VEREDICTO ---
+GANADOR: [Debatidor A o Debatidor B]
+MARGEN: [Diferencia de puntos y clasificación]
+RAZÓN PRINCIPAL: [Explicación en 1-2 oraciones de por qué ganó basada en la rúbrica]
+
+================================================================================
+FIN DE LA RÚBRICA
+================================================================================

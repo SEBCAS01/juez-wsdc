@@ -1,0 +1,309 @@
+RÚBRICA DE EVALUACIÓN OFICIAL - WSDC PARA IA
+DEBATES DE EQUIPOS (CUATRO ORADORES POR EQUIPO)
+Adaptación basada en el Manual Oficial WSDC 2024 Judge Academy
+
+================================================================================
+
+INSTRUCCIONES GENERALES:
+
+El modelo de IA debe asignar un puntaje total de 100 puntos a cada equipo, 
+divididos estrictamente en tres categorías. La evaluación se basa ÚNICAMENTE en 
+lo que fue dicho en el debate (transcripción proporcionada), sin asumir argumentos 
+no presentados.
+
+La evaluación es COLECTIVA: se evalúa el desempeño del equipo como unidad, 
+no la suma de puntuaciones individuales. Sin embargo, se pueden documentar 
+contribuciones específicas de oradores.
+
+En debates de equipos de 4 oradores:
+- Generalmente hablan solo 3 (rotación de debatidores)
+- El 1er orador abre y define el tema
+- El 2do orador extiende y refuta
+- El 3er orador consolida y realiza rebuttal principal
+- El 4to orador (si habla) realiza un cierre o rebuttal final
+
+La evaluación debe ser verificable y documentable: cada puntuación debe poder 
+explicarse mediante referencias específicas a argumentos, estructura o elementos 
+del discurso presentados en el debate.
+
+================================================================================
+
+1. CONTENIDO (Máximo 40 puntos)
+================================================================================
+
+Evalúa el "QUÉ" se dice. La solidez lógica de los argumentos presentados 
+colectivamente por el equipo.
+
+CRITERIOS A EVALUAR:
+
+✓ Solidez lógica colectiva de argumentos
+  - ¿Los argumentos del equipo están fundamentados en premisas claras?
+  - ¿Se utiliza razonamiento válido (deductivo, inductivo, analogía)?
+  - ¿Hay conexión lógica entre premisas y conclusión?
+  - ¿Cómo se desarrollan los argumentos a lo largo de los oradores que hablan?
+
+✓ Sustentación colectiva de afirmaciones
+  - ¿Se presentan evidencias para respaldar afirmaciones?
+  - ¿Se incluyen ejemplos, analogías o datos específicos?
+  - ¿Las afirmaciones son gratuitas o tienen justificación?
+  - ¿Se profundiza en los argumentos a lo largo de los oradores?
+
+✓ Rebuttal colectivo (refutación de argumentos opuestos)
+  - ¿El equipo identifica específicamente qué argumentos opuestos refuta?
+  - ¿Se explica POR QUÉ los argumentos opuestos son incorrectos?
+  - ¿El rebuttal ataca la lógica central o argumentos periféricos?
+  - ¿Se distribuye bien el rebuttal entre los oradores?
+  - ¿Hay gaps en la refutación que deja el equipo sin responder?
+
+✓ Identificación y penalización de falacias lógicas
+  Penalización SEVERA por:
+  - Strawman (distorsionar argumento opuesto para hacerlo fácil de refutar)
+  - Ad Hominem (atacar a los oradores en lugar de sus argumentos)
+  - Petición de principio (asumir como verdadero lo que se intenta probar)
+  - Afirmaciones gratuitas (sin base, evidencia o justificación)
+  - Apelación a autoridad sin análisis (citar experto sin explicar por qué)
+  - Generalización apresurada (sacar conclusiones de evidencia insuficiente)
+  - Evasión (no responder a puntos centrales del oponente)
+  - Contradicciones internas entre oradores del mismo equipo
+
+✓ Coherencia lógica interna del equipo
+  - ¿Los argumentos presentados entre oradores son mutuamente consistentes?
+  - ¿Hay contradicciones internas entre lo que dice un orador y otro?
+  - ¿Debilitan estas contradicciones el caso general?
+
+✓ Profundidad analítica progresiva
+  - ¿Se explica el "cómo" y "por qué" de cada argumento?
+  - ¿Se profundiza en causas, mecanismos y consecuencias?
+  - ¿Los oradores que hablan avanzan la argumentación o repiten?
+  - ¿Hay una progresión clara a lo largo de los oradores que hablan?
+
+RANGO DE PUNTUACIÓN:
+
+36-40 pts  Argumentos excepcionales en todo el equipo, muy bien sustentados, 
+           rebuttal directo y efectivo, sin falacias, progresión clara a lo largo 
+           de los oradores
+
+31-35 pts  Argumentos sólidos y claros, sustentación adecuada a lo largo del 
+           equipo, rebuttal efectivo, sin falacias mayores
+
+26-30 pts  Argumentos competentes, sustentación parcial, rebuttal aceptable 
+           con algunas omisiones, pocas o ninguna falacia
+
+21-25 pts  Argumentos débiles, sustentación insuficiente, rebuttal superficial, 
+           algunas falacias presentes
+
+16-20 pts  Argumentos pobres, sustentación mínima, poco rebuttal, múltiples 
+           falacias presentes
+
+11-15 pts  Argumentos insostenibles, casi sin sustentación, sin rebuttal 
+           efectivo, falacias severas
+
+6-10 pts   Argumentos prácticamente inexistentes, rebuttal incoherente, falacias 
+           generalizadas
+
+0-5 pts    Sin argumentación coherente, ininteligible o contradictorio, 
+           contradicciones severas entre oradores
+
+================================================================================
+
+2. ESTILO TEXTUAL (Máximo 40 puntos)
+================================================================================
+
+Evalúa el "CÓMO" se dice. La claridad retórica, estructura y eficacia comunicativa 
+del discurso colectivo del equipo.
+
+NOTA IMPORTANTE: Al ser transcripción de voz a texto, NO se evalúa:
+  - Lenguaje corporal o gestos
+  - Contacto visual
+  - Entonación o tono de voz (características inmutables de la voz)
+  - Acento
+  - Velocidad de habla (si la transcripción es directa)
+
+SÍ se evalúa (basado en análisis textual colectivo):
+
+✓ Claridad retórica colectiva y construcción de oraciones
+  - ¿Las oraciones están bien construidas y son fáciles de seguir?
+  - ¿Se evita la ambigüedad o confusión?
+  - ¿Hay estructura clara en la presentación de ideas?
+  - ¿Los oradores que hablan comunican de manera clara o hay variaciones grandes?
+
+✓ Riqueza y precisión de vocabulario en equipo
+  - ¿Se utiliza vocabulario variado y apropiado?
+  - ¿El registro es profesional pero accesible?
+  - ¿Se evita la jerga excesiva o lenguaje excesivamente simplista?
+  - ¿Hay consistencia terminológica entre oradores?
+
+✓ Coherencia discursiva entre oradores
+  - ¿Las ideas se conectan lógicamente entre un orador y otro?
+  - ¿Hay conectores discursivos ("por lo tanto", "además", "en consecuencia")?
+  - ¿Se mantiene el hilo argumentativo a lo largo de los oradores que hablan?
+  - ¿Se evita repetición innecesaria?
+
+✓ Estructura y organización del discurso colectivo
+  - ¿Hay estructura clara en la presentación (1er abre, 2do extiende, 3er refuta, 4to consolida)?
+  - ¿Se priorizan visualmente o mediante énfasis los puntos principales?
+  - ¿Las ideas fluyen de manera natural entre oradores?
+  - ¿Queda clara la división de roles entre oradores?
+
+✓ Persuasión escrita colectiva
+  - ¿El lenguaje del equipo refuerza los argumentos?
+  - ¿Se utiliza énfasis estratégico (repetición, paralelismo)?
+  - ¿Hay ejemplos o analogías que clarifiquen?
+  - ¿El lenguaje es convincente sin ser manipulador?
+
+RANGO DE PUNTUACIÓN:
+
+36-40 pts  Excelente claridad en todo el equipo, vocabulario muy rico, estructura 
+           fluida, alta coherencia entre oradores, muy persuasivo
+
+31-35 pts  Claridad muy buena, vocabulario adecuado y variado, buena estructura, 
+           coherencia clara entre oradores, persuasivo
+
+26-30 pts  Claridad buena, vocabulario aceptable, estructura reconocible, 
+           coherencia parcial entre oradores, aceptablemente persuasivo
+
+21-25 pts  Claridad aceptable, vocabulario limitado, estructura desigual, 
+           coherencia parcial, persuasión débil
+
+16-20 pts  Claridad insuficiente, vocabulario básico, estructura confusa, 
+           coherencia débil, poca persuasión
+
+11-15 pts  Claridad baja, vocabulario muy limitado, estructura muy desorganizada, 
+           coherencia débil entre oradores, poco persuasivo
+
+6-10 pts   Claridad muy baja, incoherencia frecuente, dificultad para seguir 
+           entre oradores, prácticamente no persuasivo
+
+0-5 pts    Prácticamente ininteligible, incoherente, desconexión total entre 
+           oradores
+
+================================================================================
+
+3. ESTRATEGIA (Máximo 20 puntos)
+================================================================================
+
+Evalúa el "POR QUÉ" se dice así. Las decisiones tácticas colectivas, identificación 
+de puntos clave y choque directo con argumentos opuestos.
+
+CRITERIOS A EVALUAR:
+
+✓ Identificación colectiva de puntos clave en debate
+  - ¿El equipo identifica los temas centrales en disputa?
+  - ¿Se enfoca en lo que REALMENTE importa?
+  - ¿O se desperdicia tiempo en argumentos periféricos?
+  - ¿Todos los oradores entienden el centro del debate?
+
+✓ Priorización colectiva de argumentos
+  - ¿Se asigna tiempo/espacio proporcional a la importancia?
+  - ¿Se aborda primero lo más crítico?
+  - ¿Se evita dedicar demasiado tiempo a detalles menores?
+  - ¿La priorización es consistente entre los oradores que hablan?
+
+✓ Choque Directo colectivo (Clash) - Atacar la lógica central del oponente
+  - ¿El equipo responde específicamente a argumentos del oponente?
+  - ¿Se ataca la premisa o lógica central?
+  - ¿O se ignoran los puntos que generan verdadera controversia?
+  - ¿Se enfrenta el debate en el nivel correcto de análisis?
+  - ¿Se distribuye bien el rebuttal entre los oradores?
+
+✓ Consistencia estratégica del equipo
+  - ¿La estrategia es coherente a lo largo de los oradores que hablan?
+  - ¿Hay cambios injustificados en la línea argumentativa?
+  - ¿Se mantiene la dirección del caso o se divaga?
+  - ¿Todos los oradores están "en la misma página"?
+
+✓ Adaptabilidad colectiva a lo que dice el oponente
+  - ¿El equipo responde a lo que sucede en el debate?
+  - ¿Los oradores posteriores ajustan la estrategia según lo que aparece?
+  - ¿O se aferran rígidamente a un plan predeterminado?
+
+✓ Interpretación y aplicación colectiva del motivo/tema
+  - ¿Se interpreta la moción de manera justa?
+  - ¿Se aplica de manera relevante a los argumentos?
+
+RANGO DE PUNTUACIÓN:
+
+18-20 pts  Estrategia excelente, identifica todos puntos clave, clash directo y 
+           efectivo, excelente priorización, muy adaptable, coordinado
+
+15-17 pts  Estrategia sólida, identifica mayoría puntos clave, clash parcial pero 
+           efectivo, buena priorización, buena coordinación
+
+12-14 pts  Estrategia competente, algunos puntos clave identificados, clash 
+           parcial, priorización aceptable, coordinación parcial
+
+10-11 pts  Estrategia débil, enfoque en temas secundarios, poco clash directo, 
+           priorización pobre, coordinación débil
+
+7-9 pts    Estrategia muy débil, evade debate real, sin clash, priorización muy 
+           pobre o invertida, falta de coordinación
+
+4-6 pts    Casi sin estrategia aparente, completamente reactivo o ignorante del 
+           debate, coordinación muy débil
+
+0-3 pts    Sin estrategia coherente, evasión total del debate real, desconexión 
+           total entre oradores
+
+================================================================================
+
+CÁLCULO TOTAL DE PUNTAJE:
+
+Puntaje Total = Contenido (0-40) + Estilo (0-40) + Estrategia (0-20) = 0-100 pts
+
+El equipo con el puntaje total más alto GANA el debate.
+
+MARGEN DE VICTORIA:
+  0-2 pts    Debate muy cerrado
+  3-5 pts    Cerrado pero bastante claro
+  5-10 pts   Claro pero no dominante
+  10-20 pts  Victoria dominante
+  20+ pts    Victoria abrumadora
+
+================================================================================
+
+NOTAS IMPORTANTES PARA LA EVALUACIÓN:
+
+1. EVALUACIÓN COLECTIVA: Evalúa el equipo como unidad. Aunque se pueden 
+   mencionar contribuciones individuales de oradores, la puntuación es para 
+   el desempeño colectivo del equipo, no la suma de puntuaciones individuales.
+
+2. EVALÚA SOLO LO DICHO: No construyas análisis que no fue mencionado. No 
+   asumas conexiones lógicas que el equipo no estableció. Juzga el debate 
+   que sucedió, no el que pudo haber sucedido.
+
+3. NO PENALICES OMISIONES: No penalices por argumentos que PODRÍAN haberse 
+   hecho pero no se hicieron. Evalúa la calidad de lo presentado, no lo 
+   que falta.
+
+4. VERIFICABILIDAD: Cada puntuación debe poder explicarse mediante referencias 
+   específicas al debate. Evita criterios puramente subjetivos.
+
+5. IMPARCIALIDAD: Aplica los mismos estándares a ambos equipos. No 
+   favorecimiento basado en preferencia personal sobre el tema.
+
+6. CONSISTENCIA: Usa los mismos criterios uniformemente. Si cambias 
+   interpretación, documéntalo.
+
+7. ESPECIFICIDAD: Al explicar puntuaciones, referencia puntos específicos del 
+   debate con ejemplos concretos de lo que dijeron los oradores.
+
+================================================================================
+
+ESTRUCTURA DE SALIDA OBLIGATORIA:
+
+--- ANÁLISIS DE POSTURAS ---
+* Equipo A [Postura]: [Justificación breve de fortalezas y debilidades]
+* Equipo B [Postura]: [Justificación breve de fortalezas y debilidades]
+
+--- TABLA DE PUNTAJES ---
+[Equipo A]: Contenido (.../40) | Estilo (.../40) | Estrategia (.../20) = TOTAL: .../100
+[Equipo B]: Contenido (.../40) | Estilo (.../40) | Estrategia (.../20) = TOTAL: .../100
+
+--- VEREDICTO ---
+GANADOR: [Equipo A o Equipo B]
+MARGEN: [Diferencia de puntos y clasificación]
+RAZÓN PRINCIPAL: [Explicación en 1-2 oraciones de por qué ganó basada en la rúbrica]
+
+================================================================================
+FIN DE LA RÚBRICA
+================================================================================
