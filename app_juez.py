@@ -156,33 +156,52 @@ if archivo_subido is not None:
                     f.write(archivo_subido.getbuffer())
                 
                 config_actual = ARQUITECTURAS[arquitectura_elegida]
-                flow_url = f"{url_langflow.rstrip('/')}/api/v1/run/{config_actual['flow_id']}"
-                
-                tweaks = {
-                    config_actual["diarizador_id"]: {
-                        "audio_file": ruta_audio_temporal
-                    },
-                    config_actual["readfile_rubrica_id"]: {
-                        "path": rubrica_seleccionada
-                    }
-                }
-                
-                payload = {
-                    "output_type": "chat",
-                    "input_type": "chat",
-                    "input_value": "Inicia la evaluación",
-                    "session_id": str(uuid.uuid4()),
-                    "tweaks": tweaks
-                }
-                
                 headers = {"x-api-key": LANGFLOW_API_KEY}
                 
                 try:
+                    # --- NUEVO: PASO 1 - SUBIR ARCHIVOS A LANGFLOW ---
+                    st.toast("1/3 Subiendo archivos al motor de IA (Ngrok)...")
+                    upload_url = f"{url_langflow.rstrip('/')}/api/v1/files/upload/{config_actual['flow_id']}"
+                    
+                    # 1.1 Subir el audio a Langflow
+                    with open(ruta_audio_temporal, "rb") as f_audio:
+                        res_audio = requests.post(upload_url, headers=headers, files={"file": f_audio}, timeout=600)
+                        res_audio.raise_for_status()
+                        ruta_audio_nube = res_audio.json().get("file_path")
+                    
+                    # 1.2 Subir la rúbrica a Langflow (La rúbrica también está en la nube, hay que enviarla)
+                    with open(rubrica_seleccionada, "rb") as f_rubrica:
+                        res_rubrica = requests.post(upload_url, headers=headers, files={"file": f_rubrica}, timeout=60)
+                        res_rubrica.raise_for_status()
+                        ruta_rubrica_nube = res_rubrica.json().get("file_path")
+                    
+                    # --- PASO 2 - EJECUTAR EL FLUJO (Usando las rutas internas que nos dio Langflow) ---
+                    st.toast("2/3 Ejecutando IA y evaluando debate...")
+                    flow_url = f"{url_langflow.rstrip('/')}/api/v1/run/{config_actual['flow_id']}"
+                    
+                    tweaks = {
+                        config_actual["diarizador_id"]: {
+                            "audio_file": ruta_audio_nube
+                        },
+                        config_actual["readfile_rubrica_id"]: {
+                            "path": ruta_rubrica_nube
+                        }
+                    }
+                    
+                    payload = {
+                        "output_type": "chat",
+                        "input_type": "chat",
+                        "input_value": "Inicia la evaluación",
+                        "session_id": str(uuid.uuid4()),
+                        "tweaks": tweaks
+                    }
+                    
                     response = requests.post(flow_url, json=payload, headers=headers, timeout=1200)
                     response.raise_for_status() 
                     datos = response.json()
                     
                     try:
+                        st.toast("3/3 Procesando veredicto...")
                         resultado_texto = datos["outputs"][0]["outputs"][0]["results"]["message"]["text"]
                         
                         # GUARDAMOS TODO EN LA MEMORIA DE SESIÓN
@@ -201,9 +220,10 @@ if archivo_subido is not None:
                 except requests.exceptions.Timeout:
                     st.error("⏰ El proceso tardó demasiado tiempo en responder.")
                 except Exception as e:
-                    st.error(f"❌ Error de conexión: {e}")
+                    st.error(f"❌ Error de conexión o subida: {e}")
                     
                 finally:
+                    # Limpiamos el archivo temporal que se creó en la nube de Streamlit
                     if os.path.exists(ruta_audio_temporal):
                         os.remove(ruta_audio_temporal)
 
