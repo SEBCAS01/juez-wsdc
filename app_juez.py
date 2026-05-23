@@ -3,6 +3,7 @@ import requests
 import os
 import uuid
 from fpdf import FPDF
+from juez_swarm import ejecutar_evaluacion_swarm
 
 # Esto crea una cajita en un menú lateral para pegar el link de Ngrok
 st.sidebar.subheader("🔌 Conexión al Cerebro (IA)")
@@ -10,6 +11,10 @@ url_langflow = st.sidebar.text_input(
     "Pega aquí tu URL de Ngrok:", 
     value="https://auction-hurried-passover.ngrok-free.dev" 
 )
+
+# Agrega esto en el Sidebar debajo del input de Ngrok:
+st.sidebar.subheader("🔑 Clave OpenAI (Para Swarm)")
+api_key_openai = st.sidebar.text_input("Pega tu API Key de OpenAI aquí:", type="password")
 
 # ==========================================
 # 1. CONFIGURACIÓN DE LLAVES Y RUTAS
@@ -112,9 +117,11 @@ st.subheader("⚙️ Parámetros de Evaluación")
 col1, col2 = st.columns(2)
 
 with col1:
+    # AÑADIMOS SWARM A LA LISTA DE OPCIONES
+    opciones_menu = list(ARQUITECTURAS.keys()) + ["Sistema Multi-Agente (Swarm)"]
     arquitectura_elegida = st.selectbox(
         "🧠 Cerebro (Arquitectura):",
-        options=list(ARQUITECTURAS.keys())
+        options=opciones_menu
     )
 
 with col2:
@@ -148,82 +155,86 @@ if archivo_subido is not None:
     # Solo mostramos el botón de iniciar si NO se ha evaluado el archivo actual
     if not st.session_state.evaluado:
         if st.button("🚀 Iniciar Evaluación", type="primary"):
-            with st.spinner(f"Diarizando audio y consultando al jurado... Esto puede tardar unos minutos."):
+            with st.spinner(f"Evaluando debate con {arquitectura_elegida}... Esto puede tardar unos minutos."):
                 
                 nombre_unico = f"{uuid.uuid4()}_{archivo_subido.name}"
                 ruta_audio_temporal = os.path.join(os.getcwd(), nombre_unico)
                 with open(ruta_audio_temporal, "wb") as f:
                     f.write(archivo_subido.getbuffer())
                 
-                config_actual = ARQUITECTURAS[arquitectura_elegida]
-                headers = {"x-api-key": LANGFLOW_API_KEY}
-                
                 try:
-                    # --- NUEVO: PASO 1 - SUBIR ARCHIVOS A LANGFLOW ---
-                    st.toast("1/3 Subiendo archivos al motor de IA (Ngrok)...")
-                    upload_url = f"{url_langflow.rstrip('/')}/api/v1/files/upload/{config_actual['flow_id']}"
-                    
-                    # 1.1 Subir el audio a Langflow
-                    with open(ruta_audio_temporal, "rb") as f_audio:
-                        res_audio = requests.post(upload_url, headers=headers, files={"file": f_audio}, timeout=600)
-                        res_audio.raise_for_status()
-                        ruta_audio_nube = res_audio.json().get("file_path")
-                    
-                    # 1.2 Subir la rúbrica a Langflow (La rúbrica también está en la nube, hay que enviarla)
-                    with open(rubrica_seleccionada, "rb") as f_rubrica:
-                        res_rubrica = requests.post(upload_url, headers=headers, files={"file": f_rubrica}, timeout=60)
-                        res_rubrica.raise_for_status()
-                        ruta_rubrica_nube = res_rubrica.json().get("file_path")
-                    
-                    # --- PASO 2 - EJECUTAR EL FLUJO (Usando las rutas internas que nos dio Langflow) ---
-                    st.toast("2/3 Ejecutando IA y evaluando debate...")
-                    flow_url = f"{url_langflow.rstrip('/')}/api/v1/run/{config_actual['flow_id']}"
-                    
-                    tweaks = {
-                        config_actual["diarizador_id"]: {
-                            "audio_file": ruta_audio_nube
-                        },
-                        config_actual["readfile_rubrica_id"]: {
-                            "path": ruta_rubrica_nube
-                        }
-                    }
-                    
-                    payload = {
-                        "output_type": "chat",
-                        "input_type": "chat",
-                        "input_value": "Inicia la evaluación",
-                        "session_id": str(uuid.uuid4()),
-                        "tweaks": tweaks
-                    }
-                    
-                    response = requests.post(flow_url, json=payload, headers=headers, timeout=1200)
-                    response.raise_for_status() 
-                    datos = response.json()
-                    
-                    try:
-                        st.toast("3/3 Procesando veredicto...")
-                        resultado_texto = datos["outputs"][0]["outputs"][0]["results"]["message"]["text"]
+                    # -----------------------------------------------------
+                    # RUTA A: PROCESAMIENTO CON SWARM (API DE OPENAI)
+                    # -----------------------------------------------------
+                    if arquitectura_elegida == "Sistema Multi-Agente (Swarm)":
+                        if not api_key_openai or api_key_openai.strip() == "":
+                            st.error("⚠️ Para usar Swarm, debes pegar tu clave de OpenAI en la barra lateral.")
+                            st.stop()
+                            
+                        st.toast("Transcribiendo y debatiendo con Agentes Swarm...")
+                        resultado_texto = ejecutar_evaluacion_swarm(
+                            ruta_audio_temporal, 
+                            rubrica_seleccionada, 
+                            api_key_openai
+                        )
                         
                         # GUARDAMOS TODO EN LA MEMORIA DE SESIÓN
                         st.session_state.resultado_texto = resultado_texto
                         st.session_state.arquitectura_usada = arquitectura_elegida
                         st.session_state.rubrica_usada = tipo_rubrica
                         st.session_state.evaluado = True
-                        
-                        # Forzamos recarga limpia para mostrar el resultado fijo
                         st.rerun()
+
+                    # -----------------------------------------------------
+                    # RUTA B: PROCESAMIENTO CON LANGFLOW LOCAL
+                    # -----------------------------------------------------
+                    else:
+                        config_actual = ARQUITECTURAS[arquitectura_elegida]
+                        flow_url = f"{url_langflow.rstrip('/')}/api/v1/run/{config_actual['flow_id']}"
                         
-                    except KeyError:
-                        st.warning("El formato de respuesta cambió. Mostrando datos crudos:")
-                        st.json(datos)
+                        tweaks = {
+                            config_actual["diarizador_id"]: {
+                                "audio_file": ruta_audio_temporal
+                            },
+                            config_actual["readfile_rubrica_id"]: {
+                                "path": rubrica_seleccionada
+                            }
+                        }
                         
+                        payload = {
+                            "output_type": "chat",
+                            "input_type": "chat",
+                            "input_value": "Inicia la evaluación",
+                            "session_id": str(uuid.uuid4()),
+                            "tweaks": tweaks
+                        }
+                        
+                        headers = {"x-api-key": LANGFLOW_API_KEY}
+                        
+                        response = requests.post(flow_url, json=payload, headers=headers, timeout=1200)
+                        response.raise_for_status() 
+                        datos = response.json()
+                        
+                        try:
+                            resultado_texto = datos["outputs"][0]["outputs"][0]["results"]["message"]["text"]
+                            
+                            # GUARDAMOS TODO EN LA MEMORIA DE SESIÓN
+                            st.session_state.resultado_texto = resultado_texto
+                            st.session_state.arquitectura_usada = arquitectura_elegida
+                            st.session_state.rubrica_usada = tipo_rubrica
+                            st.session_state.evaluado = True
+                            st.rerun()
+                            
+                        except KeyError:
+                            st.warning("El formato de respuesta cambió. Mostrando datos crudos:")
+                            st.json(datos)
+                            
                 except requests.exceptions.Timeout:
                     st.error("⏰ El proceso tardó demasiado tiempo en responder.")
                 except Exception as e:
-                    st.error(f"❌ Error de conexión o subida: {e}")
+                    st.error(f"❌ Error durante el procesamiento: {e}")
                     
                 finally:
-                    # Limpiamos el archivo temporal que se creó en la nube de Streamlit
                     if os.path.exists(ruta_audio_temporal):
                         os.remove(ruta_audio_temporal)
 
