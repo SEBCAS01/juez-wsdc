@@ -12,20 +12,20 @@ url_langflow = st.sidebar.text_input(
     value="https://auction-hurried-passover.ngrok-free.dev" 
 )
 
-# Agrega esto en el Sidebar debajo del input de Ngrok:
-st.sidebar.subheader("🔑 Clave OpenAI (Para Swarm)")
-api_key_openai = st.sidebar.text_input("Pega tu API Key de OpenAI aquí:", type="password")
+
 
 # ==========================================
 # GESTIÓN DE SECRETOS (API KEYS INVISIBLES)
 # ==========================================
 try:
-    # Intenta leer la llave secreta desde la bóveda de Streamlit Cloud
-    api_key_openai = st.secrets["OPENAI_API_KEY"]
-except KeyError:
-    # Si estás probando en tu PC local y no configuraste la carpeta oculta .streamlit
+    # Intenta leer la llave secreta (de la nube o del archivo local .streamlit/secrets.toml)
+    api_key_openai = st.secrets.get("OPENAI_API_KEY", None)
+    if not api_key_openai:
+        raise ValueError("Llave vacía")
+except Exception:
+    # Si falla por cualquier razón (no existe el archivo, no hay llave, etc.)
     api_key_openai = None
-    st.sidebar.warning("⚠️ No se encontró OPENAI_API_KEY en los secretos del sistema.")
+    st.sidebar.warning("⚠️ Modo Local sin API Key configurada. Swarm no funcionará.")
 
 
 # ==========================================
