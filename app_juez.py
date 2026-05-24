@@ -17,6 +17,18 @@ st.sidebar.subheader("🔑 Clave OpenAI (Para Swarm)")
 api_key_openai = st.sidebar.text_input("Pega tu API Key de OpenAI aquí:", type="password")
 
 # ==========================================
+# GESTIÓN DE SECRETOS (API KEYS INVISIBLES)
+# ==========================================
+try:
+    # Intenta leer la llave secreta desde la bóveda de Streamlit Cloud
+    api_key_openai = st.secrets["OPENAI_API_KEY"]
+except KeyError:
+    # Si estás probando en tu PC local y no configuraste la carpeta oculta .streamlit
+    api_key_openai = None
+    st.sidebar.warning("⚠️ No se encontró OPENAI_API_KEY en los secretos del sistema.")
+
+
+# ==========================================
 # 1. CONFIGURACIÓN DE LLAVES Y RUTAS
 # ==========================================
 # Pega aquí la clave secreta que generaste en los Settings de Langflow
@@ -167,8 +179,8 @@ if archivo_subido is not None:
                     # RUTA A: PROCESAMIENTO CON SWARM (API DE OPENAI)
                     # -----------------------------------------------------
                     if arquitectura_elegida == "Sistema Multi-Agente (Swarm)":
-                        if not api_key_openai or api_key_openai.strip() == "":
-                            st.error("⚠️ Para usar Swarm, debes pegar tu clave de OpenAI en la barra lateral.")
+                        if not api_key_openai:
+                            st.error("⚠️ El administrador del sistema no ha configurado la clave de OpenAI en el servidor.")
                             st.stop()
                             
                         st.toast("Transcribiendo y debatiendo con Agentes Swarm...")
