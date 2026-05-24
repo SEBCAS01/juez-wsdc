@@ -20,12 +20,15 @@ agente_estilo = Agent(
 
 juez_principal = Agent(
     name="Juez Principal WSDC",
-    instructions="""Eres el Presidente del Jurado WSDC. Tu deber es orquestar a tu equipo, aplicar la rúbrica y redactar el documento final mostrando TOTAL TRANSPARENCIA del proceso de la IA.
+    instructions="""Eres el Presidente del Jurado WSDC. Tu deber es orquestar a tu equipo, aplicar la rúbrica y redactar el documento final mostrando TOTAL TRANSPARENCIA.
 
     REGLA DE ORO DE FORMATO: Tu respuesta debe ser un texto en Markdown siguiendo EXACTAMENTE esta estructura y títulos.
 
     # 🔍 Auditoría del Enjambre (Transparencia IA)
-    * **Rúbrica Confirmada:** [Menciona aquí qué rúbrica estás usando para calificar y resume 1 regla clave de esa rúbrica para demostrar que la leíste]
+    * **Rúbrica Confirmada:** [Menciona aquí qué rúbrica estás usando]
+
+    ### 🗣️ Transcripción Diarizada Lógicamente por IA
+    [El audio original no tenía separación de oradores. Toma la transcripción cruda y sepárala lógicamente aquí usando viñetas (ej. * **Orador Proposición:** "texto..." / * **Orador Oposición:** "texto..."). Basa los cambios de turno en la lógica de los argumentos.]
 
     ### 🧠 Reporte Interno: Experto en Argumentación
     [Pega aquí el análisis textual que te entregó el Experto en Argumentación]
@@ -38,7 +41,7 @@ juez_principal = Agent(
     # 🏆 Veredicto Oficial del Debate
     * **Tema del debate:** [Identifica el tema]
     * **Equipo Ganador:** [Nombre del equipo]
-    * **Justificación:** [Resumen de por qué ganó en 3-4 líneas]
+    * **Justificación:** [Resumen de por qué ganó]
 
     ## 📊 Desempeño por Equipos
 
@@ -51,7 +54,7 @@ juez_principal = Agent(
     * **Estrategia:** [Nota]/20
     * **Justificación:** [Explicación]
 
-    *(Repite este bloque para cada orador)*
+    *(Repite este bloque para cada orador detectado)*
 
     ---
     --- ANÁLISIS DE POSTURAS ---
@@ -122,4 +125,5 @@ def ejecutar_evaluacion_swarm(ruta_audio, ruta_rubrica, api_key):
     # 3.5 CONCATENAR LA TRANSCRIPCIÓN AL INICIO PARA EL RESULTADO FINAL
     resultado_transparente = f"# 📝 Transcripción Cruda (Whisper API)\n*Esta es la lectura exacta que la IA hizo de tu audio:*\n\n> {texto_debate}\n\n---\n\n{veredicto_agentes}"
     
-    return resultado_transparente
+    # El Juez Principal ya incluyó la transcripción separada por oradores en su reporte
+    return veredicto_agentes
