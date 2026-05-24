@@ -120,10 +120,28 @@ def ejecutar_evaluacion_swarm(ruta_audio, ruta_rubrica, api_key):
         debug=False 
     )
     
-    veredicto_agentes = respuesta.messages[-1]["content"]
+    # ==========================================
+    # RED DE SEGURIDAD (ANTI-ERRORES)
+    # ==========================================
+    veredicto_final = "⚠️ Error: Los agentes no lograron generar un veredicto en texto."
     
-    # 3.5 CONCATENAR LA TRANSCRIPCIÓN AL INICIO PARA EL RESULTADO FINAL
-    resultado_transparente = f"# 📝 Transcripción Cruda (Whisper API)\n*Esta es la lectura exacta que la IA hizo de tu audio:*\n\n> {texto_debate}\n\n---\n\n{veredicto_agentes}"
-    
-    # El Juez Principal ya incluyó la transcripción separada por oradores en su reporte
-    return veredicto_agentes
+    # Buscamos el último mensaje real que sí tenga texto
+    for mensaje in reversed(respuesta.messages):
+        if mensaje.get("role") == "assistant" and mensaje.get("content"):
+            veredicto_final = mensaje["content"]
+            break
+
+    # ==========================================
+    # INYECCIÓN FORZADA DE LA TRANSCRIPCIÓN
+    # ==========================================
+    documento_completo = f"""# 📝 Transcripción del Debate (Whisper API)
+*Nota Técnica: A diferencia del motor local (Langflow) que cuenta con un diarizador acústico, la arquitectura en la nube (Swarm) utiliza Whisper API, procesando la transcripción de forma lineal y ultrarrápida.*
+
+> {texto_debate}
+
+---
+
+{veredicto_final}
+"""
+            
+    return documento_completo
