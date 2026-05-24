@@ -8,21 +8,32 @@ from swarm import Swarm, Agent
 
 agente_argumentacion = Agent(
     name="Experto en Argumentación",
-    instructions="Eres un juez WSDC estricto. Evalúa únicamente la lógica, solidez y refutación de los argumentos del debate. Haz un resumen de tus hallazgos y pásale la batuta al Juez Principal.",
+    instructions="Eres un juez WSDC estricto. Evalúa únicamente la lógica, solidez y refutación de los argumentos del debate. Genera un 'REPORTE DE ARGUMENTACIÓN' detallado de tus hallazgos y pásale la batuta al Juez Principal.",
     model="gpt-4o-mini"
 )
 
 agente_estilo = Agent(
     name="Experto en Estilo",
-    instructions="Eres un juez WSDC. Evalúa únicamente el lenguaje corporal (si aplica), tono de voz, claridad y persuasión. Haz un resumen de tus hallazgos y pásale la batuta al Juez Principal.",
+    instructions="Eres un juez WSDC. Evalúa únicamente el lenguaje corporal (si aplica), tono de voz, claridad y persuasión. Genera un 'REPORTE DE ESTILO' detallado de tus hallazgos y pásale la batuta al Juez Principal.",
     model="gpt-4o-mini"
 )
 
 juez_principal = Agent(
     name="Juez Principal WSDC",
-    instructions="""Eres el Presidente del Jurado WSDC. Recibirás los análisis de los expertos en Argumentación y Estilo. Tu trabajo es unirlos, aplicar la rúbrica oficial y redactar el Veredicto Final estructurado de forma idéntica al formato solicitado.
+    instructions="""Eres el Presidente del Jurado WSDC. Tu deber es orquestar a tu equipo, aplicar la rúbrica y redactar el documento final mostrando TOTAL TRANSPARENCIA del proceso de la IA.
 
-    REGLA DE ORO DE FORMATO: Tu respuesta debe ser un texto en Markdown siguiendo EXACTAMENTE esta estructura y títulos. NO cambies el orden ni agregues saludos.
+    REGLA DE ORO DE FORMATO: Tu respuesta debe ser un texto en Markdown siguiendo EXACTAMENTE esta estructura y títulos.
+
+    # 🔍 Auditoría del Enjambre (Transparencia IA)
+    * **Rúbrica Confirmada:** [Menciona aquí qué rúbrica estás usando para calificar y resume 1 regla clave de esa rúbrica para demostrar que la leíste]
+
+    ### 🧠 Reporte Interno: Experto en Argumentación
+    [Pega aquí el análisis textual que te entregó el Experto en Argumentación]
+
+    ### 🎭 Reporte Interno: Experto en Estilo
+    [Pega aquí el análisis textual que te entregó el Experto en Estilo]
+
+    ---
 
     # 🏆 Veredicto Oficial del Debate
     * **Tema del debate:** [Identifica el tema]
@@ -34,16 +45,15 @@ juez_principal = Agent(
     ### Equipo A: [Postura]
     #### Orador: [Nombre o ID]
     * **Cita textual:** "[Extrae una cita representativa]"
-    * **Argumento y Refutación:** [Análisis detallado de su participación]
+    * **Argumento y Refutación:** [Análisis detallado]
     * **Contenido:** [Nota]/40
     * **Estilo:** [Nota]/40
     * **Estrategia:** [Nota]/20
-    * **Justificación:** [Explicación de las notas]
+    * **Justificación:** [Explicación]
 
-    *(Repite este bloque para cada orador del Equipo A y luego para los del Equipo B)*
+    *(Repite este bloque para cada orador)*
 
     ---
-
     --- ANÁLISIS DE POSTURAS ---
     * Equipo A [Postura]: [Resumen de 2 líneas]
     * Equipo B [Postura]: [Resumen de 2 líneas]
@@ -54,8 +64,8 @@ juez_principal = Agent(
 
     --- VEREDICTO ---
     GANADOR: [Equipo]
-    MARGEN: [X] pts ([Cerrado/Claro/Dominante])
-    RAZÓN PRINCIPAL: [1 o 2 líneas directas sobre la victoria]
+    MARGEN: [X] pts
+    RAZÓN PRINCIPAL: [Línea directa sobre la victoria]
     """,
     model="gpt-4o-mini"
 )
@@ -72,7 +82,6 @@ def transferir_a_estilo():
 def transferir_a_juez_principal():
     return juez_principal
 
-# Les damos las instrucciones de a quién pueden "pasarle el micrófono"
 agente_argumentacion.functions = [transferir_a_juez_principal]
 agente_estilo.functions = [transferir_a_juez_principal]
 juez_principal.functions = [transferir_a_argumentacion, transferir_a_estilo]
@@ -86,9 +95,10 @@ def ejecutar_evaluacion_swarm(ruta_audio, ruta_rubrica, api_key):
     openai_client = OpenAI(api_key=api_key)
     swarm_client = Swarm(client=openai_client)
     
-    # 3.2 Leer el texto de la rúbrica seleccionada
+    # 3.2 Leer la rúbrica y extraer su nombre para transparencia
     with open(ruta_rubrica, "r", encoding="utf-8") as f:
         texto_rubrica = f.read()
+        nombre_archivo_rubrica = os.path.basename(ruta_rubrica)
 
     # 3.3 Transcribir el audio súper rápido con Whisper API
     with open(ruta_audio, "rb") as audio_file:
@@ -99,13 +109,17 @@ def ejecutar_evaluacion_swarm(ruta_audio, ruta_rubrica, api_key):
     texto_debate = transcripcion.text
 
     # 3.4 Iniciar el debate de los agentes
-    prompt_inicial = f"Aplica esta rúbrica:\n{texto_rubrica}\n\nAl siguiente debate:\n{texto_debate}\n\nPor favor, coordina con tu equipo de expertos y genera el veredicto final."
+    prompt_inicial = f"ESTA ES LA RÚBRICA QUE DEBES APLICAR (Archivo: {nombre_archivo_rubrica}):\n{texto_rubrica}\n\nESTA ES LA TRANSCRIPCIÓN DEL DEBATE:\n{texto_debate}\n\nPor favor, coordina con tu equipo de expertos y genera el reporte completo y el veredicto final."
     
     respuesta = swarm_client.run(
         agent=juez_principal,
         messages=[{"role": "user", "content": prompt_inicial}],
-        debug=False # Ponlo en True si quieres ver en la terminal cómo hablan entre ellos
+        debug=False 
     )
     
-    # Devolvemos el último mensaje (El veredicto del juez principal)
-    return respuesta.messages[-1]["content"]
+    veredicto_agentes = respuesta.messages[-1]["content"]
+    
+    # 3.5 CONCATENAR LA TRANSCRIPCIÓN AL INICIO PARA EL RESULTADO FINAL
+    resultado_transparente = f"# 📝 Transcripción Cruda (Whisper API)\n*Esta es la lectura exacta que la IA hizo de tu audio:*\n\n> {texto_debate}\n\n---\n\n{veredicto_agentes}"
+    
+    return resultado_transparente
