@@ -55,7 +55,6 @@ ARQUITECTURAS = {
 # ==========================================
 # 3. FUNCIÓN PUENTE: OBTENER TRANSCRIPCIÓN DIARIZADA
 # ==========================================
-# AHORA PIDE 'url_base' COMO PARÁMETRO PARA EVITAR EL NAME ERROR
 def obtener_transcripcion_diarizada(ruta_audio, config_actual, rubrica_path, url_base):
     flow_url = f"{url_base.rstrip('/')}/api/v1/run/{config_actual['flow_id']}"
     tweaks = {
@@ -76,7 +75,7 @@ def obtener_transcripcion_diarizada(ruta_audio, config_actual, rubrica_path, url
     return datos["outputs"][0]["outputs"][0]["results"]["message"]["text"]
 
 # ==========================================
-# 4. INICIALIZACIÓN DE LA MEMORIA DE SESIÓN (STATE)
+# 4. INICIALIZACIÓN DE LA MEMORIA DE SESIÓN
 # ==========================================
 if "resultado_texto" not in st.session_state:
     st.session_state.resultado_texto = None
@@ -88,7 +87,7 @@ if "rubrica_usada" not in st.session_state:
     st.session_state.rubrica_usada = ""
 
 # ==========================================
-# 5. FUNCIÓN MAESTRA PARA GENERAR PDF FORMATEADO
+# 5. FUNCIÓN MAESTRA PARA GENERAR PDF
 # ==========================================
 def generar_pdf_veredictos(texto, arquitectura, rubrica):
     texto_limpio = texto.replace("**", "").replace("###", "")
@@ -186,7 +185,6 @@ if archivo_subido is not None:
                         st.write("📡 1/2: Obteniendo diarización acústica desde Langflow...")
                         config_aux = ARQUITECTURAS["Arquitectura Lineal (Chain)"]
                         
-                        # AQUÍ PASAMOS url_langflow PARA QUE NO DE ERROR
                         texto_diarizado = obtener_transcripcion_diarizada(ruta_audio_temporal, config_aux, rubrica_seleccionada, url_langflow)
                         
                         st.write("🧠 2/2: Delegando análisis lógico al Enjambre (Swarm)...")
