@@ -3,7 +3,7 @@ import requests
 import os
 import uuid
 from fpdf import FPDF
-from juez_swarm import ejecutar_evaluacion_swarm_con_texto
+
 
 # ==========================================
 # 1. CONFIGURACIÓN VISUAL Y BARRA LATERAL
