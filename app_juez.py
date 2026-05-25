@@ -191,7 +191,7 @@ if archivo_subido is not None:
                         st.write("📡 1/2: Obteniendo diarización acústica desde Langflow...")
                         config_aux = ARQUITECTURAS["Arquitectura Lineal (Chain)"]
                         
-                        texto_diarizado = obtener_transcripcion_diarizada(ruta_audio_temporal, config_aux, rubrica_seleccionada, url_langflow)
+                        texto_diarizado = obtener_transcripcion_diarizada(archivo_subido.getvalue(), config_aux, rubrica_seleccionada, url_langflow)
                         
                         st.write("🧠 2/2: Delegando análisis lógico al Enjambre (Swarm)...")
                         with open(rubrica_seleccionada, "r", encoding="utf-8") as f:
