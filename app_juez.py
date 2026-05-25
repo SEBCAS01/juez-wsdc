@@ -237,7 +237,7 @@ if archivo_subido is not None:
                         
                         headers = {"x-api-key": LANGFLOW_API_KEY}
                         
-                        response = requests.post(flow_url, json=payload, headers=headers, timeout=1200)
+                        response = requests.post(flow_url, json=payload, headers=headers, timeout=3600)
                         response.raise_for_status() 
                         datos = response.json()
                         
