@@ -1,155 +1,296 @@
+import streamlit as st
+import requests
 import os
-from openai import OpenAI
-from swarm import Swarm, Agent
+import uuid
+from fpdf import FPDF
+from juez_swarm import ejecutar_evaluacion_swarm_con_texto
 
 # ==========================================
-# 1. DEFINICIÓN DE LOS EXPERTOS (AGENTES)
+# 1. CONFIGURACIÓN VISUAL Y BARRA LATERAL
 # ==========================================
+st.set_page_config(page_title="Juez Automático WSDC", page_icon="⚖️", layout="centered")
 
-# NUEVO AGENTE: Se encarga exclusivamente de resolver el problema de Whisper
-agente_diarizador = Agent(
-    name="Agente Diarizador",
-    instructions="Eres un experto lingüista. Recibirás un bloque de texto crudo de un debate sin separaciones. Tu ÚNICA tarea es leerlo, deducir lógicamente los cambios de turno basándote en la conversación y reescribir todo el texto usando viñetas por orador (Ej: * **Orador 1 (Proposición):** 'texto...'). NO resumas, preserva cada palabra original, solo dale formato de guion teatral.",
-    model="gpt-4o"
-)
-
-agente_argumentacion = Agent(
-    name="Experto en Argumentación",
-    instructions="Eres un juez WSDC estricto. Evalúa la lógica, solidez y refutación de los argumentos. Genera un 'REPORTE DE ARGUMENTACIÓN' detallado y pásale la batuta al Juez Principal.",
-    model="gpt-4o"
-)
-
-agente_estilo = Agent(
-    name="Experto en Estilo",
-    instructions="Eres un juez WSDC. Evalúa la claridad, estructura y persuasión del discurso. Genera un 'REPORTE DE ESTILO' detallado y pásale la batuta al Juez Principal.",
-    model="gpt-4o"
-)
-
-juez_principal = Agent(
-    name="Juez Principal WSDC",
-    instructions="""Eres el Presidente del Jurado WSDC. Tu deber es orquestar a tu equipo, aplicar la rúbrica y redactar el documento final mostrando TOTAL TRANSPARENCIA.
-
-    REGLA ESTRICTA DE FORMATO: Es obligatorio que tu respuesta final NO omita ninguna de estas secciones:
-
-    # 🔍 Auditoría del Enjambre (Transparencia IA)
-    * **Rúbrica Confirmada:** [Menciona aquí qué rúbrica estás usando]
-
-    ### 🧠 Reporte Interno: Experto en Argumentación
-    [Pega el análisis del Experto en Argumentación]
-
-    ### 🎭 Reporte Interno: Experto en Estilo
-    [Pega el análisis del Experto en Estilo]
-
-    ---
-
-    # 🏆 Veredicto Oficial del Debate
-    * **Tema del debate:** [Identifica el tema]
-    * **Equipo Ganador:** [Nombre del equipo]
-    * **Justificación:** [Resumen de por qué ganó]
-
-    ## 📊 Desempeño por Equipos
-
-    ### Equipo A: [Postura]
-    #### Orador: [Nombre o ID]
-    * **Cita textual:** "[Extrae una cita]"
-    * **Argumento y Refutación:** [Análisis detallado]
-    * **Contenido:** [Nota]/40
-    * **Estilo:** [Nota]/40
-    * **Estrategia:** [Nota]/20
-    * **Justificación:** [Explicación]
-    *(Repite la evaluación para cada orador distinto)*
-
-    ---
-    --- ANÁLISIS DE POSTURAS ---
-    * Equipo A: [Resumen]
-    * Equipo B: [Resumen]
-
-    --- TABLA DE PUNTAJES ---
-    Equipo A: Contenido (X/40) | Estilo (X/40) | Estrategia (X/20) = TOTAL: X/100
-    Equipo B: Contenido (X/40) | Estilo (X/40) | Estrategia (X/20) = TOTAL: X/100
-
-    --- VEREDICTO ---
-    GANADOR: [Equipo]
-    MARGEN: [X] pts
-    RAZÓN PRINCIPAL: [Justificación corta]
-    """,
-    model="gpt-4o"
+st.sidebar.subheader("🔌 Conexión al Cerebro (IA)")
+url_langflow = st.sidebar.text_input(
+    "Pega aquí tu URL de Ngrok:", 
+    value="https://auction-hurried-passover.ngrok-free.dev" 
 )
 
 # ==========================================
-# 2. FUNCIONES DE DELEGACIÓN (HANDOFFS)
+# GESTIÓN DE SECRETOS (API KEYS INVISIBLES)
 # ==========================================
-def transferir_a_argumentacion():
-    return agente_argumentacion
-
-def transferir_a_estilo():
-    return agente_estilo
-
-def transferir_a_juez_principal():
-    return juez_principal
-
-agente_argumentacion.functions = [transferir_a_juez_principal]
-agente_estilo.functions = [transferir_a_juez_principal]
-juez_principal.functions = [transferir_a_argumentacion, transferir_a_estilo]
+try:
+    api_key_openai = st.secrets.get("OPENAI_API_KEY", None)
+    if not api_key_openai:
+        raise ValueError("Llave vacía")
+except Exception:
+    api_key_openai = None
+    st.sidebar.warning("⚠️ Modo Local sin API Key configurada. Swarm no funcionará.")
 
 # ==========================================
-# 3. FUNCIÓN MAESTRA: TRANSCRIBIR Y EVALUAR
+# 2. CONFIGURACIÓN DE LLAVES Y RUTAS
 # ==========================================
-def ejecutar_evaluacion_swarm(ruta_audio, ruta_rubrica, api_key):
-    os.environ["OPENAI_API_KEY"] = api_key
-    openai_client = OpenAI(api_key=api_key)
-    swarm_client = Swarm(client=openai_client)
+LANGFLOW_API_KEY = "sk-MKqzedV2Z3UnKzV4yOnFLaXiynsczt-_WuDZQKRkjCs" 
+ARCHIVO_RUBRICA_EQUIPOS = "RUBRICA_EQUIPOS.txt"
+ARCHIVO_RUBRICA_1VS1 = "RUBRICA_1V1.txt"
+
+ARQUITECTURAS = {
+    "Arquitectura Lineal (Chain)": {
+        "flow_id": "9dd70430-ef75-4174-a93e-1976c7b6b692",
+        "diarizador_id": "CustomComponent-5mTe3",
+        "readfile_rubrica_id": "Read File-File-xUxcw"
+    },
+    "Arquitectura de Árbol (Tree)": {
+        "flow_id": "0ca5391e-827a-49a5-aca1-e65768f7829f",
+        "diarizador_id": "DiarizadorWSDC-pLb4O",
+        "readfile_rubrica_id": "Read File-File-PdtnV"
+    },
+    "Arquitectura de Grafos (Graph)": {
+        "flow_id": "2dd01fd2-65bd-4039-8007-7ae77d6c1f8c",
+        "diarizador_id": "DiarizadorWSDC-pLb4O",
+        "readfile_rubrica_id": "Read File-File-PdtnV"
+    }
+}
+
+# ==========================================
+# 3. FUNCIÓN PUENTE: OBTENER TRANSCRIPCIÓN DIARIZADA
+# ==========================================
+# AHORA PIDE 'url_base' COMO PARÁMETRO PARA EVITAR EL NAME ERROR
+def obtener_transcripcion_diarizada(ruta_audio, config_actual, rubrica_path, url_base):
+    flow_url = f"{url_base.rstrip('/')}/api/v1/run/{config_actual['flow_id']}"
+    tweaks = {
+        config_actual["diarizador_id"]: {"audio_file": ruta_audio},
+        config_actual["readfile_rubrica_id"]: {"path": rubrica_path}
+    }
+    payload = {
+        "output_type": "chat",
+        "input_type": "chat",
+        "input_value": "Solo necesito la transcripción diarizada",
+        "session_id": str(uuid.uuid4()),
+        "tweaks": tweaks
+    }
+    headers = {"x-api-key": LANGFLOW_API_KEY}
+    response = requests.post(flow_url, json=payload, headers=headers, timeout=1200)
+    response.raise_for_status()
+    datos = response.json()
+    return datos["outputs"][0]["outputs"][0]["results"]["message"]["text"]
+
+# ==========================================
+# 4. INICIALIZACIÓN DE LA MEMORIA DE SESIÓN (STATE)
+# ==========================================
+if "resultado_texto" not in st.session_state:
+    st.session_state.resultado_texto = None
+if "evaluado" not in st.session_state:
+    st.session_state.evaluado = False
+if "arquitectura_usada" not in st.session_state:
+    st.session_state.arquitectura_usada = ""
+if "rubrica_usada" not in st.session_state:
+    st.session_state.rubrica_usada = ""
+
+# ==========================================
+# 5. FUNCIÓN MAESTRA PARA GENERAR PDF FORMATEADO
+# ==========================================
+def generar_pdf_veredictos(texto, arquitectura, rubrica):
+    texto_limpio = texto.replace("**", "").replace("###", "")
+    texto_safe = texto_limpio.encode('latin-1', 'replace').decode('latin-1')
+    arq_safe = arquitectura.encode('latin-1', 'replace').decode('latin-1')
+    rub_safe = rubrica.encode('latin-1', 'replace').decode('latin-1')
     
-    with open(ruta_rubrica, "r", encoding="utf-8") as f:
-        texto_rubrica = f.read()
-        nombre_archivo_rubrica = os.path.basename(ruta_rubrica)
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    
+    pdf.set_fill_color(31, 41, 55) 
+    pdf.rect(0, 0, 210, 38, 'F')
+    
+    pdf.set_text_color(255, 255, 255)
+    pdf.set_font("Helvetica", "B", 16)
+    pdf.set_y(12)
+    pdf.cell(0, 8, "VEREDICTO OFICIAL DE EVALUACION", ln=True, align="C")
+    
+    pdf.set_font("Helvetica", "I", 10)
+    pdf.set_text_color(209, 213, 219)
+    pdf.cell(0, 6, "Plataforma de IA para Debates WSDC", ln=True, align="C")
+    
+    pdf.set_y(45)
+    pdf.set_fill_color(243, 244, 246)
+    pdf.set_font("Helvetica", "B", 10)
+    pdf.set_text_color(75, 85, 99)
+    pdf.cell(0, 10, f"  Cerebro: {arq_safe}   |   Formato: {rub_safe}", ln=True, fill=True)
+    pdf.ln(5)
+    
+    pdf.set_font("Helvetica", "", 11)
+    pdf.set_text_color(17, 24, 39)
+    pdf.multi_cell(0, 6, texto_safe)
+    
+    return pdf.output()
 
-    # 3.1 Transcribir (Whisper API - Texto Crudo)
-    with open(ruta_audio, "rb") as audio_file:
-        transcripcion = openai_client.audio.transcriptions.create(
-            model="whisper-1",
-            file=audio_file
+# ==========================================
+# 6. INTERFAZ PRINCIPAL
+# ==========================================
+st.title("⚖️ Juez Automático de Debates WSDC")
+st.markdown("Plataforma de evaluación automática. Selecciona la arquitectura de IA, el formato del debate y sube la grabación para obtener el veredicto.")
+
+st.subheader("⚙️ Parámetros de Evaluación")
+col1, col2 = st.columns(2)
+
+with col1:
+    opciones_menu = list(ARQUITECTURAS.keys()) + ["Sistema Multi-Agente (Swarm)"]
+    arquitectura_elegida = st.selectbox(
+        "🧠 Cerebro (Arquitectura):",
+        options=opciones_menu
+    )
+
+with col2:
+    tipo_rubrica = st.selectbox(
+        "📋 Formato de Rúbrica:",
+        options=["Equipos WSDC", "Individual (1vs1)"]
+    )
+
+if tipo_rubrica == "Equipos WSDC":
+    rubrica_seleccionada = os.path.join(os.getcwd(), ARCHIVO_RUBRICA_EQUIPOS)
+else:
+    rubrica_seleccionada = os.path.join(os.getcwd(), ARCHIVO_RUBRICA_1VS1)
+
+with st.expander("👀 Ver reglas de evaluación que usará la IA (Rúbrica)"):
+    try:
+        with open(rubrica_seleccionada, "r", encoding="utf-8") as file:
+            st.text(file.read())
+    except FileNotFoundError:
+        st.error(f"Archivo de rúbrica no encontrado.")
+
+st.divider() 
+archivo_subido = st.file_uploader("Sube el audio/video del debate aquí", type=["mp3", "mp4", "wav"])
+
+if archivo_subido is not None:
+    st.success(f"🎵 Archivo '{archivo_subido.name}' cargado temporalmente. Configura tus opciones arriba y presiona el botón para iniciar.")
+    st.audio(archivo_subido)
+    
+    if not st.session_state.evaluado:
+        if st.button("🚀 Iniciar Evaluación", type="primary"):
+            nombre_unico = f"{uuid.uuid4()}_{archivo_subido.name}"
+            ruta_audio_temporal = os.path.join(os.getcwd(), nombre_unico)
+            with open(ruta_audio_temporal, "wb") as f:
+                f.write(archivo_subido.getbuffer())
+                
+            try:
+                # -----------------------------------------------------
+                # RUTA A: SISTEMA HÍBRIDO (LANGFLOW + SWARM)
+                # -----------------------------------------------------
+                if arquitectura_elegida == "Sistema Multi-Agente (Swarm)":
+                    if not api_key_openai:
+                        st.error("⚠️ El administrador del sistema no ha configurado la clave de OpenAI en el servidor.")
+                        st.stop()
+                        
+                    with st.status("Ejecutando Pipeline Híbrido (Acústico + Lógico)...", expanded=True) as status:
+                        st.write("📡 1/2: Obteniendo diarización acústica desde Langflow...")
+                        config_aux = ARQUITECTURAS["Arquitectura Lineal (Chain)"]
+                        
+                        # AQUÍ PASAMOS url_langflow PARA QUE NO DE ERROR
+                        texto_diarizado = obtener_transcripcion_diarizada(ruta_audio_temporal, config_aux, rubrica_seleccionada, url_langflow)
+                        
+                        st.write("🧠 2/2: Delegando análisis lógico al Enjambre (Swarm)...")
+                        with open(rubrica_seleccionada, "r", encoding="utf-8") as f:
+                            texto_rubrica = f.read()
+                        
+                        resultado_texto = ejecutar_evaluacion_swarm_con_texto(
+                            texto_diarizado, 
+                            texto_rubrica, 
+                            api_key_openai
+                        )
+                        status.update(label="✅ Análisis Híbrido Completado", state="complete")
+                        
+                    st.session_state.resultado_texto = resultado_texto
+                    st.session_state.arquitectura_usada = arquitectura_elegida
+                    st.session_state.rubrica_usada = tipo_rubrica
+                    st.session_state.evaluado = True
+                    st.rerun()
+
+                # -----------------------------------------------------
+                # RUTA B: PROCESAMIENTO CON LANGFLOW LOCAL (PURO)
+                # -----------------------------------------------------
+                else:
+                    with st.spinner(f"Evaluando debate con {arquitectura_elegida}... Esto puede tardar unos minutos."):
+                        config_actual = ARQUITECTURAS[arquitectura_elegida]
+                        flow_url = f"{url_langflow.rstrip('/')}/api/v1/run/{config_actual['flow_id']}"
+                        
+                        tweaks = {
+                            config_actual["diarizador_id"]: {
+                                "audio_file": ruta_audio_temporal
+                            },
+                            config_actual["readfile_rubrica_id"]: {
+                                "path": rubrica_seleccionada
+                            }
+                        }
+                        
+                        payload = {
+                            "output_type": "chat",
+                            "input_type": "chat",
+                            "input_value": "Inicia la evaluación",
+                            "session_id": str(uuid.uuid4()),
+                            "tweaks": tweaks
+                        }
+                        
+                        headers = {"x-api-key": LANGFLOW_API_KEY}
+                        
+                        response = requests.post(flow_url, json=payload, headers=headers, timeout=1200)
+                        response.raise_for_status() 
+                        datos = response.json()
+                        
+                        try:
+                            resultado_texto = datos["outputs"][0]["outputs"][0]["results"]["message"]["text"]
+                            
+                            st.session_state.resultado_texto = resultado_texto
+                            st.session_state.arquitectura_usada = arquitectura_elegida
+                            st.session_state.rubrica_usada = tipo_rubrica
+                            st.session_state.evaluado = True
+                            st.rerun()
+                            
+                        except KeyError:
+                            st.warning("El formato de respuesta cambió. Mostrando datos crudos:")
+                            st.json(datos)
+                            
+            except requests.exceptions.Timeout:
+                st.error("⏰ El proceso tardó demasiado tiempo en responder.")
+            except Exception as e:
+                st.error(f"❌ Error durante el procesamiento: {e}")
+                
+            finally:
+                if os.path.exists(ruta_audio_temporal):
+                    os.remove(ruta_audio_temporal)
+
+# ==========================================
+# 7. RENDERIZADO DEL RESULTADO PERMANENTE
+# ==========================================
+if st.session_state.evaluado and st.session_state.resultado_texto:
+    st.divider()
+    st.success("✨ ¡Análisis completado exitosamente!")
+    st.subheader(f"🏆 Veredicto Final")
+    st.caption(f"Evaluado usando {st.session_state.arquitectura_usada} con rúbrica de {st.session_state.rubrica_usada}")
+    
+    st.write(st.session_state.resultado_texto)
+    
+    pdf_data = generar_pdf_veredictos(
+        st.session_state.resultado_texto, 
+        st.session_state.arquitectura_usada, 
+        st.session_state.rubrica_usada
+    )
+    
+    col_btn1, col_btn2 = st.columns(2)
+    
+    with col_btn1:
+        st.download_button(
+            label="📥 Descargar Veredicto en PDF",
+            data=bytes(pdf_data),
+            file_name=f"Veredicto_{st.session_state.rubrica_usada.replace(' ', '_')}.pdf",
+            mime="application/pdf",
+            use_container_width=True
         )
-    texto_crudo = transcripcion.text
-
-    # 3.2 Fase de Limpieza: Diarización Lógica (Agente Independiente)
-    respuesta_diarizador = swarm_client.run(
-        agent=agente_diarizador,
-        messages=[{"role": "user", "content": f"Por favor diariza lógicamente este texto sin resumirlo:\n{texto_crudo}"}],
-        debug=False
-    )
-    
-    texto_diarizado = "⚠️ Error en la diarización."
-    for mensaje in reversed(respuesta_diarizador.messages):
-        if mensaje.get("role") == "assistant" and mensaje.get("content"):
-            texto_diarizado = mensaje["content"]
-            break
-
-    # 3.3 Evaluación Multi-Agente (El Jurado)
-    prompt_inicial = f"ESTA ES LA RÚBRICA QUE DEBES APLICAR (Archivo: {nombre_archivo_rubrica}):\n{texto_rubrica}\n\nESTE ES EL DEBATE DIARIZADO PREVIAMENTE:\n{texto_diarizado}\n\nPor favor, coordina con tu equipo de expertos, recolecta sus reportes y genera el veredicto final siguiendo ESTRICTAMENTE el formato de markdown que se te pidió."
-    
-    respuesta_juez = swarm_client.run(
-        agent=juez_principal,
-        messages=[{"role": "user", "content": prompt_inicial}],
-        debug=False 
-    )
-    
-    # 3.4 Red de Seguridad del Juez
-    veredicto_final = "⚠️ Error: Los agentes no lograron generar un veredicto en texto."
-    for mensaje in reversed(respuesta_juez.messages):
-        if mensaje.get("role") == "assistant" and mensaje.get("content"):
-            veredicto_final = mensaje["content"]
-            break
-
-    # 3.5 Ensamblaje Final del Documento (Inyección Forzada)
-    documento_completo = f"""# 📝 Transcripción (Diarización Lógica por IA)
-*Nota Arquitectónica: Whisper API no cuenta con diarizador acústico. Para emular el comportamiento de Langflow, el sistema Swarm delegó la tarea a un Agente Lingüista que dedujo los cambios de orador basándose puramente en la inferencia del texto.*
-
-{texto_diarizado}
-
----
-
-{veredicto_final}
-"""
-            
-    return documento_completo
+        
+    with col_btn2:
+        if st.button("🔄 Nueva Evaluación / Limpiar", type="secondary", use_container_width=True):
+            st.session_state.resultado_texto = None
+            st.session_state.evaluado = False
+            st.session_state.arquitectura_usada = ""
+            st.session_state.rubrica_usada = ""
+            st.rerun()
