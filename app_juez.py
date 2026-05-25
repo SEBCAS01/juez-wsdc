@@ -55,12 +55,16 @@ ARQUITECTURAS = {
 # ==========================================
 # 3. FUNCIÓN PUENTE: OBTENER TRANSCRIPCIÓN DIARIZADA
 # ==========================================
-def obtener_transcripcion_diarizada(ruta_audio, config_actual, rubrica_path, url_base):
+def obtener_transcripcion_diarizada(archivo_bytes, config_actual, rubrica_path, url_base):
+    # Ya no enviamos la ruta, enviamos el archivo como un objeto de archivo
     flow_url = f"{url_base.rstrip('/')}/api/v1/run/{config_actual['flow_id']}"
+    
+    # Preparamos el archivo para enviarlo como 'upload'
+    files = {'file': archivo_bytes}
     tweaks = {
-        config_actual["diarizador_id"]: {"audio_file": ruta_audio},
         config_actual["readfile_rubrica_id"]: {"path": rubrica_path}
     }
+    
     payload = {
         "output_type": "chat",
         "input_type": "chat",
@@ -69,7 +73,9 @@ def obtener_transcripcion_diarizada(ruta_audio, config_actual, rubrica_path, url
         "tweaks": tweaks
     }
     headers = {"x-api-key": LANGFLOW_API_KEY}
-    response = requests.post(flow_url, json=payload, headers=headers, timeout=1200)
+    
+    # Enviamos la petición
+    response = requests.post(flow_url, files=files, data={"payload": str(payload)}, headers=headers, timeout=1200)
     response.raise_for_status()
     datos = response.json()
     return datos["outputs"][0]["outputs"][0]["results"]["message"]["text"]
