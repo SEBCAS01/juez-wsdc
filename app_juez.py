@@ -63,6 +63,8 @@ if "arquitectura_usada" not in st.session_state:
     st.session_state.arquitectura_usada = ""
 if "rubrica_usada" not in st.session_state:
     st.session_state.rubrica_usada = ""
+if "tiempo_total" not in st.session_state:
+    st.session_state.tiempo_total = 0.0
 
 # ==========================================
 # 4. FUNCIÓN MAESTRA PARA GENERAR PDF
