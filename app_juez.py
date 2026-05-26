@@ -147,6 +147,8 @@ if archivo_subido is not None:
     
     if not st.session_state.evaluado:
         if st.button("🚀 Iniciar Evaluación", type="primary"):
+            # 1. Empieza a correr el reloj justo aquí
+            tiempo_inicio = time.time()
             nombre_unico = f"{uuid.uuid4()}_{archivo_subido.name}"
             ruta_audio_temporal = os.path.join(os.getcwd(), nombre_unico)
             with open(ruta_audio_temporal, "wb") as f:
@@ -175,6 +177,11 @@ if archivo_subido is not None:
                     st.session_state.resultado_texto = resultado_texto
                     st.session_state.arquitectura_usada = arquitectura_elegida
                     st.session_state.rubrica_usada = tipo_rubrica
+                    st.session_state.evaluado = True
+                    # 2. Detén el reloj justo antes del st.rerun()
+                    tiempo_fin = time.time()
+                    # 3. Guarda la diferencia en tu variable de sesión
+                    st.session_state.tiempo_total = tiempo_fin - tiempo_inicio
                     st.session_state.evaluado = True
                     st.rerun()
 
