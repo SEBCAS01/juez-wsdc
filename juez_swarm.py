@@ -69,46 +69,30 @@ juez_principal = Agent(
     model="gpt-4o"
 )
 
-# ==========================================
-# 2. FUNCIONES DE DELEGACIÓN (HANDOFFS)
-# ==========================================
-def transferir_a_argumentacion(): return agente_argumentacion
-def transferir_a_estilo(): return agente_estilo
-def transferir_a_juez_principal(): return juez_principal
+# DELEGACIONES
+agente_argumentacion.functions = [lambda: juez_principal]
+agente_estilo.functions = [lambda: juez_principal]
+juez_principal.functions = [lambda: agente_argumentacion, lambda: agente_estilo]
 
-agente_argumentacion.functions = [transferir_a_juez_principal]
-agente_estilo.functions = [transferir_a_juez_principal]
-juez_principal.functions = [transferir_a_argumentacion, transferir_a_estilo]
-
-# ==========================================
-# 3. FUNCIÓN MAESTRA (SISTEMA HÍBRIDO)
-# ==========================================
-def ejecutar_evaluacion_swarm_con_texto(texto_diarizado, texto_rubrica, api_key):
+# FUNCIÓN MAESTRA (LA QUE ORIGINALMENTE TENÍAS)
+def ejecutar_evaluacion_swarm(ruta_audio, ruta_rubrica, api_key):
     os.environ["OPENAI_API_KEY"] = api_key
-    openai_client = OpenAI(api_key=api_key)
-    swarm_client = Swarm(client=openai_client)
-
-    prompt_inicial = f"ESTA ES LA RÚBRICA QUE DEBES APLICAR:\n{texto_rubrica}\n\nESTE ES EL DEBATE YA DIARIZADO ACÚSTICAMENTE:\n{texto_diarizado}\n\nPor favor, coordina con tu equipo de expertos, recolecta sus reportes y genera el veredicto final siguiendo ESTRICTAMENTE el formato de markdown que se te pidió."
+    client = OpenAI(api_key=api_key)
+    swarm = Swarm(client=client)
     
-    respuesta_juez = swarm_client.run(
-        agent=juez_principal,
-        messages=[{"role": "user", "content": prompt_inicial}],
-        debug=False 
-    )
+    # 1. Transcribir con Whisper
+    with open(ruta_audio, "rb") as f:
+        transcripcion = client.audio.transcriptions.create(model="whisper-1", file=f)
+    texto_debate = transcripcion.text
     
-    veredicto_final = "⚠️ Error: Los agentes no lograron generar un veredicto en texto."
-    for mensaje in reversed(respuesta_juez.messages):
-        if mensaje.get("role") == "assistant" and mensaje.get("content"):
-            veredicto_final = mensaje["content"]
-            break
-
-    documento_completo = f"""# 📝 Transcripción Profesional (Diarización Acústica)
-*Nota Arquitectónica: Para emular la precisión humana y evitar los errores lineales de Whisper, este sistema opera de forma Híbrida. La diarización acústica de oradores fue ejecutada por el nodo especializado de Langflow, y el análisis del debate fue delegado al Enjambre de Inteligencia Artificial (Swarm).*
-
-> {texto_diarizado}
-
----
-
-{veredicto_final}
-"""
-    return documento_completo
+    # 2. Leer rúbrica
+    with open(ruta_rubrica, "r", encoding="utf-8") as f:
+        texto_rubrica = f.read()
+    
+    # 3. Ejecutar Swarm
+    prompt = f"Rúbrica:\n{texto_rubrica}\n\nTranscripción:\n{texto_debate}\n\nGenera el reporte."
+    res = swarm.run(agent=juez_principal, messages=[{"role": "user", "content": prompt}])
+    
+    veredicto = res.messages[-1]["content"]
+    
+    return f"# Transcripción (Whisper API)\n{texto_debate}\n\n---\n\n{veredicto}"
