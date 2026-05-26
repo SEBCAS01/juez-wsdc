@@ -5,7 +5,7 @@ import uuid
 from fpdf import FPDF
 # IMPORTANTE: Volvemos a importar la función original, no la "con_texto"
 from juez_swarm import ejecutar_evaluacion_swarm
-
+import time
 # ==========================================
 # 1. CONFIGURACIÓN VISUAL Y BARRA LATERAL
 # ==========================================
@@ -203,15 +203,22 @@ if archivo_subido is not None:
                         }
                         
                         headers = {"x-api-key": LANGFLOW_API_KEY}
+
+                        inicio = time.time()
                         
                         response = requests.post(flow_url, json=payload, headers=headers, timeout=3600)
                         response.raise_for_status() 
                         datos = response.json()
-                        
+
+                        fin = time.time()
+                        tiempo_total = fin - inicio
+
+                        st.write(f"⏱️ Tiempo total de ejecución: {tiempo_total:.2f} segundos")
                         try:
                             resultado_texto = datos["outputs"][0]["outputs"][0]["results"]["message"]["text"]
                             
                             st.session_state.resultado_texto = resultado_texto
+                            st.session_state.tiempo_total = tiempo_total
                             st.session_state.arquitectura_usada = arquitectura_elegida
                             st.session_state.rubrica_usada = tipo_rubrica
                             st.session_state.evaluado = True
@@ -238,6 +245,7 @@ if st.session_state.evaluado and st.session_state.resultado_texto:
     st.success("✨ ¡Análisis completado exitosamente!")
     st.subheader(f"🏆 Veredicto Final")
     st.caption(f"Evaluado usando {st.session_state.arquitectura_usada} con rúbrica de {st.session_state.rubrica_usada}")
+    st.info(f"⏱️ Tiempo total: {st.session_state.tiempo_total:.2f} segundos")
     
     st.write(st.session_state.resultado_texto)
     
