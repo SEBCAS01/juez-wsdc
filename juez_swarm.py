@@ -69,12 +69,25 @@ juez_principal = Agent(
     model="gpt-4o"
 )
 
-# DELEGACIONES
-agente_argumentacion.functions = [lambda: juez_principal]
-agente_estilo.functions = [lambda: juez_principal]
-juez_principal.functions = [lambda: agente_argumentacion, lambda: agente_estilo]
+# ==========================================
+# 2. DELEGACIONES (FUNCIONES CON NOMBRES VÁLIDOS PARA OPENAI)
+# ==========================================
+def transferir_a_juez_principal():
+    return juez_principal
 
-# FUNCIÓN MAESTRA (LA QUE ORIGINALMENTE TENÍAS)
+def transferir_a_argumentacion():
+    return agente_argumentacion
+
+def transferir_a_estilo():
+    return agente_estilo
+
+agente_argumentacion.functions = [transferir_a_juez_principal]
+agente_estilo.functions = [transferir_a_juez_principal]
+juez_principal.functions = [transferir_a_argumentacion, transferir_a_estilo]
+
+# ==========================================
+# 3. FUNCIÓN MAESTRA
+# ==========================================
 def ejecutar_evaluacion_swarm(ruta_audio, ruta_rubrica, api_key):
     os.environ["OPENAI_API_KEY"] = api_key
     client = OpenAI(api_key=api_key)
@@ -82,7 +95,10 @@ def ejecutar_evaluacion_swarm(ruta_audio, ruta_rubrica, api_key):
     
     # 1. Transcribir con Whisper
     with open(ruta_audio, "rb") as f:
-        transcripcion = client.audio.transcriptions.create(model="whisper-1", file=f)
+        transcripcion = client.audio.transcriptions.create(
+            model="whisper-1", 
+            file=f
+        )
     texto_debate = transcripcion.text
     
     # 2. Leer rúbrica
@@ -91,8 +107,16 @@ def ejecutar_evaluacion_swarm(ruta_audio, ruta_rubrica, api_key):
     
     # 3. Ejecutar Swarm
     prompt = f"Rúbrica:\n{texto_rubrica}\n\nTranscripción:\n{texto_debate}\n\nGenera el reporte."
-    res = swarm.run(agent=juez_principal, messages=[{"role": "user", "content": prompt}])
+    res = swarm.run(
+        agent=juez_principal, 
+        messages=[{"role": "user", "content": prompt}]
+    )
     
-    veredicto = res.messages[-1]["content"]
+    # Red de seguridad
+    veredicto = "⚠️ Error: No se generó un veredicto."
+    for m in reversed(res.messages):
+        if m.get("role") == "assistant" and m.get("content"):
+            veredicto = m["content"]
+            break
     
     return f"# Transcripción (Whisper API)\n{texto_debate}\n\n---\n\n{veredicto}"
