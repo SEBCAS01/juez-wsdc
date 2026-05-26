@@ -161,4 +161,107 @@ if archivo_subido is not None:
                         st.stop()
                         
                     with st.status("Ejecutando Enjambre de IA (Transcribiendo y Evaluando)...", expanded=True) as status:
-                        st.write("🎙️ Envi
+                        st.write("🎙️ Enviando audio a Whisper API para transcripción rápida...")
+                        
+                        # Llamamos directamente a la función original que usa Whisper internamente
+                        resultado_texto = ejecutar_evaluacion_swarm(
+                            ruta_audio_temporal, 
+                            rubrica_seleccionada, 
+                            api_key_openai
+                        )
+                        status.update(label="✅ Análisis Completado", state="complete")
+                        
+                    st.session_state.resultado_texto = resultado_texto
+                    st.session_state.arquitectura_usada = arquitectura_elegida
+                    st.session_state.rubrica_usada = tipo_rubrica
+                    st.session_state.evaluado = True
+                    st.rerun()
+
+                # -----------------------------------------------------
+                # RUTA B: PROCESAMIENTO CON LANGFLOW LOCAL (NGROK)
+                # -----------------------------------------------------
+                else:
+                    with st.spinner(f"Evaluando debate con {arquitectura_elegida}... Esto puede tardar unos minutos."):
+                        config_actual = ARQUITECTURAS[arquitectura_elegida]
+                        flow_url = f"{url_langflow.rstrip('/')}/api/v1/run/{config_actual['flow_id']}"
+                        
+                        tweaks = {
+                            config_actual["diarizador_id"]: {
+                                "audio_file": ruta_audio_temporal
+                            },
+                            config_actual["readfile_rubrica_id"]: {
+                                "path": rubrica_seleccionada
+                            }
+                        }
+                        
+                        payload = {
+                            "output_type": "chat",
+                            "input_type": "chat",
+                            "input_value": "Inicia la evaluación",
+                            "session_id": str(uuid.uuid4()),
+                            "tweaks": tweaks
+                        }
+                        
+                        headers = {"x-api-key": LANGFLOW_API_KEY}
+                        
+                        response = requests.post(flow_url, json=payload, headers=headers, timeout=3600)
+                        response.raise_for_status() 
+                        datos = response.json()
+                        
+                        try:
+                            resultado_texto = datos["outputs"][0]["outputs"][0]["results"]["message"]["text"]
+                            
+                            st.session_state.resultado_texto = resultado_texto
+                            st.session_state.arquitectura_usada = arquitectura_elegida
+                            st.session_state.rubrica_usada = tipo_rubrica
+                            st.session_state.evaluado = True
+                            st.rerun()
+                            
+                        except KeyError:
+                            st.warning("El formato de respuesta cambió. Mostrando datos crudos:")
+                            st.json(datos)
+                            
+            except requests.exceptions.Timeout:
+                st.error("⏰ El proceso tardó demasiado tiempo en responder.")
+            except Exception as e:
+                st.error(f"❌ Error durante el procesamiento: {e}")
+                
+            finally:
+                if os.path.exists(ruta_audio_temporal):
+                    os.remove(ruta_audio_temporal)
+
+# ==========================================
+# 6. RENDERIZADO DEL RESULTADO PERMANENTE
+# ==========================================
+if st.session_state.evaluado and st.session_state.resultado_texto:
+    st.divider()
+    st.success("✨ ¡Análisis completado exitosamente!")
+    st.subheader(f"🏆 Veredicto Final")
+    st.caption(f"Evaluado usando {st.session_state.arquitectura_usada} con rúbrica de {st.session_state.rubrica_usada}")
+    
+    st.write(st.session_state.resultado_texto)
+    
+    pdf_data = generar_pdf_veredictos(
+        st.session_state.resultado_texto, 
+        st.session_state.arquitectura_usada, 
+        st.session_state.rubrica_usada
+    )
+    
+    col_btn1, col_btn2 = st.columns(2)
+    
+    with col_btn1:
+        st.download_button(
+            label="📥 Descargar Veredicto en PDF",
+            data=bytes(pdf_data),
+            file_name=f"Veredicto_{st.session_state.rubrica_usada.replace(' ', '_')}.pdf",
+            mime="application/pdf",
+            use_container_width=True
+        )
+        
+    with col_btn2:
+        if st.button("🔄 Nueva Evaluación / Limpiar", type="secondary", use_container_width=True):
+            st.session_state.resultado_texto = None
+            st.session_state.evaluado = False
+            st.session_state.arquitectura_usada = ""
+            st.session_state.rubrica_usada = ""
+            st.rerun()
