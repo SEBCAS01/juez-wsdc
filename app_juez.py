@@ -3,7 +3,8 @@ import requests
 import os
 import uuid
 from fpdf import FPDF
-from juez_swarm import ejecutar_evaluacion_swarm_con_texto
+# IMPORTANTE: Volvemos a importar la función original, no la "con_texto"
+from juez_swarm import ejecutar_evaluacion_swarm
 
 # ==========================================
 # 1. CONFIGURACIÓN VISUAL Y BARRA LATERAL
@@ -12,7 +13,7 @@ st.set_page_config(page_title="Juez Automático WSDC", page_icon="⚖️", layou
 
 st.sidebar.subheader("🔌 Conexión al Cerebro (IA)")
 url_langflow = st.sidebar.text_input(
-    "Pega aquí tu URL de Ngrok:", 
+    "Pega aquí tu URL de Ngrok (Solo para arquitecturas locales):", 
     value="https://auction-hurried-passover.ngrok-free.dev" 
 )
 
@@ -53,35 +54,7 @@ ARQUITECTURAS = {
 }
 
 # ==========================================
-# 3. FUNCIÓN PUENTE: OBTENER TRANSCRIPCIÓN DIARIZADA
-# ==========================================
-def obtener_transcripcion_diarizada(archivo_bytes, config_actual, rubrica_path, url_base):
-    # Ya no enviamos la ruta, enviamos el archivo como un objeto de archivo
-    flow_url = f"{url_base.rstrip('/')}/api/v1/run/{config_actual['flow_id']}"
-    
-    # Preparamos el archivo para enviarlo como 'upload'
-    files = {'file': archivo_bytes}
-    tweaks = {
-        config_actual["readfile_rubrica_id"]: {"path": rubrica_path}
-    }
-    
-    payload = {
-        "output_type": "chat",
-        "input_type": "chat",
-        "input_value": "Solo necesito la transcripción diarizada",
-        "session_id": str(uuid.uuid4()),
-        "tweaks": tweaks
-    }
-    headers = {"x-api-key": LANGFLOW_API_KEY}
-    
-    # Enviamos la petición
-    response = requests.post(flow_url, files=files, data={"payload": str(payload)}, headers=headers, timeout=1200)
-    response.raise_for_status()
-    datos = response.json()
-    return datos["outputs"][0]["outputs"][0]["results"]["message"]["text"]
-
-# ==========================================
-# 4. INICIALIZACIÓN DE LA MEMORIA DE SESIÓN
+# 3. INICIALIZACIÓN DE LA MEMORIA DE SESIÓN
 # ==========================================
 if "resultado_texto" not in st.session_state:
     st.session_state.resultado_texto = None
@@ -93,7 +66,7 @@ if "rubrica_usada" not in st.session_state:
     st.session_state.rubrica_usada = ""
 
 # ==========================================
-# 5. FUNCIÓN MAESTRA PARA GENERAR PDF
+# 4. FUNCIÓN MAESTRA PARA GENERAR PDF
 # ==========================================
 def generar_pdf_veredictos(texto, arquitectura, rubrica):
     texto_limpio = texto.replace("**", "").replace("###", "")
@@ -131,7 +104,7 @@ def generar_pdf_veredictos(texto, arquitectura, rubrica):
     return pdf.output()
 
 # ==========================================
-# 6. INTERFAZ PRINCIPAL
+# 5. INTERFAZ PRINCIPAL
 # ==========================================
 st.title("⚖️ Juez Automático de Debates WSDC")
 st.markdown("Plataforma de evaluación automática. Selecciona la arquitectura de IA, el formato del debate y sube la grabación para obtener el veredicto.")
@@ -180,121 +153,12 @@ if archivo_subido is not None:
                 
             try:
                 # -----------------------------------------------------
-                # RUTA A: SISTEMA HÍBRIDO (LANGFLOW + SWARM)
+                # RUTA A: PROCESAMIENTO EN LA NUBE (SWARM PURE + WHISPER)
                 # -----------------------------------------------------
                 if arquitectura_elegida == "Sistema Multi-Agente (Swarm)":
                     if not api_key_openai:
                         st.error("⚠️ El administrador del sistema no ha configurado la clave de OpenAI en el servidor.")
                         st.stop()
                         
-                    with st.status("Ejecutando Pipeline Híbrido (Acústico + Lógico)...", expanded=True) as status:
-                        st.write("📡 1/2: Obteniendo diarización acústica desde Langflow...")
-                        config_aux = ARQUITECTURAS["Arquitectura Lineal (Chain)"]
-                        
-                        texto_diarizado = obtener_transcripcion_diarizada(archivo_subido.getvalue(), config_aux, rubrica_seleccionada, url_langflow)
-                        
-                        st.write("🧠 2/2: Delegando análisis lógico al Enjambre (Swarm)...")
-                        with open(rubrica_seleccionada, "r", encoding="utf-8") as f:
-                            texto_rubrica = f.read()
-                        
-                        resultado_texto = ejecutar_evaluacion_swarm_con_texto(
-                            texto_diarizado, 
-                            texto_rubrica, 
-                            api_key_openai
-                        )
-                        status.update(label="✅ Análisis Híbrido Completado", state="complete")
-                        
-                    st.session_state.resultado_texto = resultado_texto
-                    st.session_state.arquitectura_usada = arquitectura_elegida
-                    st.session_state.rubrica_usada = tipo_rubrica
-                    st.session_state.evaluado = True
-                    st.rerun()
-
-                # -----------------------------------------------------
-                # RUTA B: PROCESAMIENTO CON LANGFLOW LOCAL (PURO)
-                # -----------------------------------------------------
-                else:
-                    with st.spinner(f"Evaluando debate con {arquitectura_elegida}... Esto puede tardar unos minutos."):
-                        config_actual = ARQUITECTURAS[arquitectura_elegida]
-                        flow_url = f"{url_langflow.rstrip('/')}/api/v1/run/{config_actual['flow_id']}"
-                        
-                        tweaks = {
-                            config_actual["diarizador_id"]: {
-                                "audio_file": ruta_audio_temporal
-                            },
-                            config_actual["readfile_rubrica_id"]: {
-                                "path": rubrica_seleccionada
-                            }
-                        }
-                        
-                        payload = {
-                            "output_type": "chat",
-                            "input_type": "chat",
-                            "input_value": "Inicia la evaluación",
-                            "session_id": str(uuid.uuid4()),
-                            "tweaks": tweaks
-                        }
-                        
-                        headers = {"x-api-key": LANGFLOW_API_KEY}
-                        
-                        response = requests.post(flow_url, json=payload, headers=headers, timeout=3600)
-                        response.raise_for_status() 
-                        datos = response.json()
-                        
-                        try:
-                            resultado_texto = datos["outputs"][0]["outputs"][0]["results"]["message"]["text"]
-                            
-                            st.session_state.resultado_texto = resultado_texto
-                            st.session_state.arquitectura_usada = arquitectura_elegida
-                            st.session_state.rubrica_usada = tipo_rubrica
-                            st.session_state.evaluado = True
-                            st.rerun()
-                            
-                        except KeyError:
-                            st.warning("El formato de respuesta cambió. Mostrando datos crudos:")
-                            st.json(datos)
-                            
-            except requests.exceptions.Timeout:
-                st.error("⏰ El proceso tardó demasiado tiempo en responder.")
-            except Exception as e:
-                st.error(f"❌ Error durante el procesamiento: {e}")
-                
-            finally:
-                if os.path.exists(ruta_audio_temporal):
-                    os.remove(ruta_audio_temporal)
-
-# ==========================================
-# 7. RENDERIZADO DEL RESULTADO PERMANENTE
-# ==========================================
-if st.session_state.evaluado and st.session_state.resultado_texto:
-    st.divider()
-    st.success("✨ ¡Análisis completado exitosamente!")
-    st.subheader(f"🏆 Veredicto Final")
-    st.caption(f"Evaluado usando {st.session_state.arquitectura_usada} con rúbrica de {st.session_state.rubrica_usada}")
-    
-    st.write(st.session_state.resultado_texto)
-    
-    pdf_data = generar_pdf_veredictos(
-        st.session_state.resultado_texto, 
-        st.session_state.arquitectura_usada, 
-        st.session_state.rubrica_usada
-    )
-    
-    col_btn1, col_btn2 = st.columns(2)
-    
-    with col_btn1:
-        st.download_button(
-            label="📥 Descargar Veredicto en PDF",
-            data=bytes(pdf_data),
-            file_name=f"Veredicto_{st.session_state.rubrica_usada.replace(' ', '_')}.pdf",
-            mime="application/pdf",
-            use_container_width=True
-        )
-        
-    with col_btn2:
-        if st.button("🔄 Nueva Evaluación / Limpiar", type="secondary", use_container_width=True):
-            st.session_state.resultado_texto = None
-            st.session_state.evaluado = False
-            st.session_state.arquitectura_usada = ""
-            st.session_state.rubrica_usada = ""
-            st.rerun()
+                    with st.status("Ejecutando Enjambre de IA (Transcribiendo y Evaluando)...", expanded=True) as status:
+                        st.write("🎙️ Envi
