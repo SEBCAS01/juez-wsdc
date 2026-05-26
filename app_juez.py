@@ -14,7 +14,7 @@ st.set_page_config(page_title="Juez Automático WSDC", page_icon="⚖️", layou
 st.sidebar.subheader("🔌 Conexión al Cerebro (IA)")
 url_langflow = st.sidebar.text_input(
     "Pega aquí tu URL de Ngrok (o localhost para VPS):", 
-    value="http://127.0.0.1:7860" 
+    value="https://auction-hurried-passover.ngrok-free.dev" 
 )
 
 # ==========================================
