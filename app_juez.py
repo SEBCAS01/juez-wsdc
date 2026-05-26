@@ -3,7 +3,6 @@ import requests
 import os
 import uuid
 from fpdf import FPDF
-# IMPORTANTE: Volvemos a importar la función original, no la "con_texto"
 from juez_swarm import ejecutar_evaluacion_swarm
 import time
 # ==========================================
