@@ -5,6 +5,7 @@ import uuid
 from fpdf import FPDF
 from juez_swarm import ejecutar_evaluacion_swarm
 import time
+
 # ==========================================
 # 1. CONFIGURACIÓN VISUAL Y BARRA LATERAL
 # ==========================================
@@ -12,8 +13,8 @@ st.set_page_config(page_title="Juez Automático WSDC", page_icon="⚖️", layou
 
 st.sidebar.subheader("🔌 Conexión al Cerebro (IA)")
 url_langflow = st.sidebar.text_input(
-    "Pega aquí tu URL de Ngrok (Solo para arquitecturas locales):", 
-    value="https://auction-hurried-passover.ngrok-free.dev" 
+    "Pega aquí tu URL de Ngrok (o localhost para VPS):", 
+    value="http://127.0.0.1:7860" 
 )
 
 # ==========================================
@@ -25,7 +26,7 @@ try:
         raise ValueError("Llave vacía")
 except Exception:
     api_key_openai = None
-    st.sidebar.warning("⚠️ Modo Local sin API Key configurada. Swarm no funcionará.")
+    st.sidebar.warning("⚠️ Modo sin API Key de OpenAI. Swarm no funcionará.")
 
 # ==========================================
 # 2. CONFIGURACIÓN DE LLAVES Y RUTAS
@@ -126,6 +127,9 @@ with col2:
         options=["Equipos WSDC", "Individual (1vs1)"]
     )
 
+if arquitectura_elegida != "Sistema Multi-Agente (Swarm)":
+    st.info("ℹ️ **Aviso de Arquitectura:** Las opciones de Langflow asumen que el motor está corriendo en el mismo entorno o VPS que esta web para compartir rutas de disco.")
+
 if tipo_rubrica == "Equipos WSDC":
     rubrica_seleccionada = os.path.join(os.getcwd(), ARCHIVO_RUBRICA_EQUIPOS)
 else:
@@ -147,7 +151,6 @@ if archivo_subido is not None:
     
     if not st.session_state.evaluado:
         if st.button("🚀 Iniciar Evaluación", type="primary"):
-            # 1. Empieza a correr el reloj justo aquí
             tiempo_inicio = time.time()
             nombre_unico = f"{uuid.uuid4()}_{archivo_subido.name}"
             ruta_audio_temporal = os.path.join(os.getcwd(), nombre_unico)
@@ -166,7 +169,6 @@ if archivo_subido is not None:
                     with st.status("Ejecutando Enjambre de IA (Transcribiendo y Evaluando)...", expanded=True) as status:
                         st.write("🎙️ Enviando audio a Whisper API para transcripción rápida...")
                         
-                        # Llamamos directamente a la función original que usa Whisper internamente
                         resultado_texto = ejecutar_evaluacion_swarm(
                             ruta_audio_temporal, 
                             rubrica_seleccionada, 
@@ -177,16 +179,14 @@ if archivo_subido is not None:
                     st.session_state.resultado_texto = resultado_texto
                     st.session_state.arquitectura_usada = arquitectura_elegida
                     st.session_state.rubrica_usada = tipo_rubrica
-                    st.session_state.evaluado = True
-                    # 2. Detén el reloj justo antes del st.rerun()
+                    
                     tiempo_fin = time.time()
-                    # 3. Guarda la diferencia en tu variable de sesión
                     st.session_state.tiempo_total = tiempo_fin - tiempo_inicio
                     st.session_state.evaluado = True
                     st.rerun()
 
                 # -----------------------------------------------------
-                # RUTA B: PROCESAMIENTO CON LANGFLOW LOCAL (NGROK)
+                # RUTA B: PROCESAMIENTO CON LANGFLOW (LAS 3 ARQUITECTURAS RESTANTES)
                 # -----------------------------------------------------
                 else:
                     with st.spinner(f"Evaluando debate con {arquitectura_elegida}... Esto puede tardar unos minutos."):
@@ -212,21 +212,17 @@ if archivo_subido is not None:
                         
                         headers = {"x-api-key": LANGFLOW_API_KEY}
 
-                        inicio = time.time()
-                        
                         response = requests.post(flow_url, json=payload, headers=headers, timeout=3600)
                         response.raise_for_status() 
                         datos = response.json()
 
-                        fin = time.time()
-                        tiempo_total = fin - inicio
+                        tiempo_fin = time.time()
+                        st.session_state.tiempo_total = tiempo_fin - tiempo_inicio
 
-                        st.write(f"⏱️ Tiempo total de ejecución: {tiempo_total:.2f} segundos")
                         try:
                             resultado_texto = datos["outputs"][0]["outputs"][0]["results"]["message"]["text"]
                             
                             st.session_state.resultado_texto = resultado_texto
-                            st.session_state.tiempo_total = tiempo_total
                             st.session_state.arquitectura_usada = arquitectura_elegida
                             st.session_state.rubrica_usada = tipo_rubrica
                             st.session_state.evaluado = True
@@ -239,7 +235,7 @@ if archivo_subido is not None:
             except requests.exceptions.Timeout:
                 st.error("⏰ El proceso tardó demasiado tiempo en responder.")
             except Exception as e:
-                st.error(f"❌ Error durante el procesamiento: {e}")
+                st.error(f"❌ Error durante el procesamiento: {e}\n\nSi estás usando Streamlit Cloud con Langflow local, asegúrate de que comparten rutas o usa la opción Swarm.")
                 
             finally:
                 if os.path.exists(ruta_audio_temporal):
@@ -280,4 +276,5 @@ if st.session_state.evaluado and st.session_state.resultado_texto:
             st.session_state.evaluado = False
             st.session_state.arquitectura_usada = ""
             st.session_state.rubrica_usada = ""
+            st.session_state.tiempo_total = 0.0
             st.rerun()
