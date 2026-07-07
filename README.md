@@ -246,4 +246,4 @@ Corre el proceso con `nohup` (ver sección "Cómo correr la aplicación") para q
 
 ## 📄 Licencia
 
-Este proyecto es de uso académico/investigación. Ajusta esta sección según corresponda a tu contexto institucional.
+Este proyecto es de uso académico/investigación.
