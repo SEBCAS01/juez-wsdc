@@ -96,7 +96,12 @@ ARQUITECTURAS = {
 
 5. Reinicia Streamlit para que tome los cambios
 
-> 💡 Si solo te interesa el modo **Swarm**, puedes omitir por completo esta sección — funciona sin ninguna configuración de Langflow.
+**Además**, estos 3 flujos usan **Google Gemini** para la evaluación final, configurado *dentro* de Langflow (no en el `secrets.toml` de Streamlit, que es un sistema de configuración separado). Después de importar los flujos:
+
+6. En Langflow, ve a tu perfil → **Settings** → **Global Variables** → crea una variable, por ejemplo `GEMINI_API_KEY`, con tu clave de Google AI Studio
+7. Abre cada uno de los 3 flujos importados, localiza el/los componente(s) de modelo Gemini, y en el campo de API key selecciona esa Global Variable en vez de pegar la clave literal (así solo la configuras una vez para los 3 flujos)
+
+> 💡 Si solo te interesa el modo **Swarm**, puedes omitir por completo esta sección — funciona sin ninguna configuración de Langflow ni de Gemini.
 
 ---
 
@@ -138,7 +143,7 @@ El resultado es un número entre 0 y 1 — mientras más alto, más sólida es l
 - Python 3.11+
 - Cuenta y API Key de [OpenAI](https://platform.openai.com/) (para el modo Swarm)
 - Cuenta y API Key de [Deepgram](https://deepgram.com/) (para transcripción + diarización, todas las arquitecturas)
-- Instancia de [Langflow](https://www.langflow.org/) desplegada y accesible, si se usarán las arquitecturas Chain/Tree/Graph
+- (Opcional) Instancia de [Langflow](https://www.langflow.org/) desplegada y accesible, si se usarán las arquitecturas Chain/Tree/Graph — estas requieren también una API Key de [Google AI Studio](https://aistudio.google.com/) (Gemini), configurada dentro de Langflow
 - ~1GB de espacio en disco libre para los pesos del modelo TRACE
 
 ---
