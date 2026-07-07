@@ -1,11 +1,25 @@
-streamlit
-requests
-fpdf2
-openai
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+# --- App / UI ---
+streamlit==1.57.0
+requests==2.34.2
+fpdf2==2.8.7
+
+# --- Swarm (multi-agente OpenAI) ---
+openai==2.38.0
 git+https://github.com/openai/swarm.git
-torch==2.1.0
-torchaudio==2.1.0
-pyannote.audio==3.1.1
-openai-whisper==20250625
-huggingface-hub==0.25.0
+
+# --- Transcripcion y diarizacion ---
+deepgram-sdk==3.2.7
+
+# --- TRACE (Toulmin scoring) ---
+torch==2.4.0+cpu
+torchaudio==2.4.0+cpu
+torchvision==0.16.0+cpu
+transformers==5.13.0
+safetensors==0.8.0
 numpy==1.26.4
+
+# --- Segmentacion de oraciones ---
+spacy==3.8.14
+es_core_news_sm @ https://github.com/explosion/spacy-models/releases/download/es_core_news_sm-3.8.0/es_core_news_sm-3.8.0-py3-none-any.whl
