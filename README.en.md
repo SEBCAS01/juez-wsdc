@@ -246,4 +246,4 @@ Run the process with `nohup` (see "Running the application" section) so it survi
 
 ## 📄 License
 
-This project is for academic/research use. Adjust this section as appropriate for your institutional context.
+This project is for academic/research use. 
