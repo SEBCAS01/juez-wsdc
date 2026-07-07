@@ -3,3 +3,9 @@ requests
 fpdf2
 openai
 git+https://github.com/openai/swarm.git
+torch==2.1.0
+torchaudio==2.1.0
+pyannote.audio==3.1.1
+openai-whisper==20250625
+huggingface-hub==0.25.0
+numpy==1.26.4

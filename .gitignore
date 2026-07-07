@@ -1,0 +1,9 @@
+venv/
+venv-trace/
+__pycache__/
+*.pyc
+*.log
+logs.txt
+.streamlit/secrets.toml
+.DS_Store
+*.save
