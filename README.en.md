@@ -59,6 +59,45 @@ The interface lets you choose between 4 evaluation "brains":
 
 The first three run on top of **Langflow** (requires it to be deployed and reachable via its API — see `url_langflow` in the app sidebar). The fourth (**Swarm**) runs entirely within this Streamlit application, with no external Langflow dependency.
 
+### ⚠️ Required setup for Chain/Tree/Graph (Langflow)
+
+Unlike Swarm mode, the 3 Langflow architectures **do not work immediately after cloning the repo** — they require an extra manual step due to a known Langflow limitation.
+
+Exported flows live in `langflow-flows/`:
+```
+langflow-flows/
+├── chain_arquitectura_lineal.json
+├── tree_arquitectura_arbol.json
+└── graph_arquitectura_grafos.json
+```
+
+**Why importing alone isn't enough:** Langflow **regenerates flow and component IDs every time a flow is imported** — there is no way to fix or preserve them across export/import ([officially documented limitation](https://github.com/langflow-ai/langflow/issues/5375)). This means the IDs hardcoded in `app_juez.py` (inside the `ARQUITECTURAS` dictionary) will become outdated as soon as you import the flows into your own instance.
+
+**Steps to get it working:**
+
+1. Open your Langflow instance
+2. Import each of the 3 `.json` files from `langflow-flows/` (**"Import"** button on the Projects page)
+3. Open each imported flow and copy:
+   - The **Flow ID** (visible in the URL while editing the flow, e.g. `.../flow/<this-is-the-flow-id>`)
+   - The **Diarizer component ID** (click the component → shown in its settings, format `ComponentName-XXXXX`)
+   - The **Rubric reader component ID** (`ReadFile`, same format)
+4. Open `app_juez.py` and replace the corresponding values in `ARQUITECTURAS`:
+
+```python
+ARQUITECTURAS = {
+    "Arquitectura Lineal (Chain)": {
+        "flow_id": "YOUR-NEW-FLOW-ID-HERE",
+        "diarizador_id": "YOUR-NEW-DIARIZER-ID-HERE",
+        "readfile_rubrica_id": "YOUR-NEW-READFILE-ID-HERE"
+    },
+    # ... repeat for Tree and Graph
+}
+```
+
+5. Restart Streamlit for the changes to take effect
+
+> 💡 If you're only interested in **Swarm** mode, you can skip this section entirely — it works without any Langflow configuration.
+
 ---
 
 ## 🔬 What is TRACE?
@@ -173,6 +212,10 @@ juez-wsdc/
 ├── secrets.toml.example         # API keys configuration template
 ├── RUBRICA_1V1.txt              # Rubric for individual (1v1) debates
 ├── RUBRICA_EQUIPOS.txt          # Rubric for team debates
+├── langflow-flows/              # Exported Langflow flows (require re-configuring IDs, see above)
+│   ├── chain_arquitectura_lineal.json
+│   ├── tree_arquitectura_arbol.json
+│   └── graph_arquitectura_grafos.json
 ├── models/
 │   └── trace/                  # TRACE-DeBERTa model weights (Git LFS)
 └── trace-module/
@@ -233,6 +276,9 @@ Make sure `requirements.txt` includes the line `--extra-index-url https://downlo
 ### Streamlit stops when closing the SSH session
 Run the process with `nohup` (see "Running the application" section) so it survives the terminal closing.
 
+### "Flow not found" or "component not found" error in Chain/Tree/Graph
+The IDs hardcoded in `ARQUITECTURAS` (`app_juez.py`) correspond to the original Langflow instance where the flows were created. If you imported the flows into a different instance, **you must update those IDs manually** — see the [Required setup for Chain/Tree/Graph](#-available-evaluation-architectures) section above.
+
 ---
 
 ## 📚 References
@@ -246,4 +292,4 @@ Run the process with `nohup` (see "Running the application" section) so it survi
 
 ## 📄 License
 
-This project is for academic/research use. 
+This project is for academic/research use. Adjust this section as appropriate for your institutional context.

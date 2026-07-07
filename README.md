@@ -59,6 +59,45 @@ La interfaz permite elegir entre 4 "cerebros" de evaluación:
 
 Las 3 primeras corren sobre **Langflow** (requiere tenerlo desplegado y accesible vía su API, ver `url_langflow` en el sidebar de la app). La cuarta (**Swarm**) corre completamente dentro de esta aplicación Streamlit, sin dependencias externas de Langflow.
 
+### ⚠️ Configuración requerida para Chain/Tree/Graph (Langflow)
+
+A diferencia del modo Swarm, las 3 arquitecturas de Langflow **no funcionan de inmediato tras clonar el repo** — requieren un paso manual adicional debido a una limitación conocida de Langflow.
+
+Los flujos exportados están en `langflow-flows/`:
+```
+langflow-flows/
+├── chain_arquitectura_lineal.json
+├── tree_arquitectura_arbol.json
+└── graph_arquitectura_grafos.json
+```
+
+**Por qué no basta con importarlos:** Langflow **regenera los IDs de flow y de componente cada vez que un flujo se importa** — no existe forma de fijarlos o preservarlos entre exportación e importación ([limitación documentada oficialmente](https://github.com/langflow-ai/langflow/issues/5375)). Esto significa que los IDs hardcodeados en `app_juez.py` (dentro del diccionario `ARQUITECTURAS`) van a quedar desactualizados apenas importes los flujos en tu propia instancia.
+
+**Pasos para dejarlo funcionando:**
+
+1. Abre tu instancia de Langflow
+2. Importa cada uno de los 3 archivos `.json` de `langflow-flows/` (botón **"Import"** en la página de Proyectos)
+3. Abre cada flujo importado y copia:
+   - El **Flow ID** (visible en la URL al editar el flujo, ej. `.../flow/<este-es-el-flow-id>`)
+   - El **ID del componente Diarizador** (click en el componente → aparece en su configuración, formato `NombreComponente-XXXXX`)
+   - El **ID del componente de lectura de rúbrica** (`ReadFile`, mismo formato)
+4. Abre `app_juez.py` y reemplaza los valores correspondientes en `ARQUITECTURAS`:
+
+```python
+ARQUITECTURAS = {
+    "Arquitectura Lineal (Chain)": {
+        "flow_id": "TU-NUEVO-FLOW-ID-AQUI",
+        "diarizador_id": "TU-NUEVO-DIARIZADOR-ID-AQUI",
+        "readfile_rubrica_id": "TU-NUEVO-READFILE-ID-AQUI"
+    },
+    # ... repetir para Tree y Graph
+}
+```
+
+5. Reinicia Streamlit para que tome los cambios
+
+> 💡 Si solo te interesa el modo **Swarm**, puedes omitir por completo esta sección — funciona sin ninguna configuración de Langflow.
+
 ---
 
 ## 🔬 ¿Qué es TRACE?
@@ -173,6 +212,10 @@ juez-wsdc/
 ├── secrets.toml.example         # Plantilla de configuración de API keys
 ├── RUBRICA_1V1.txt              # Rúbrica para debates individuales
 ├── RUBRICA_EQUIPOS.txt          # Rúbrica para debates por equipos
+├── langflow-flows/              # Flujos exportados de Langflow (requieren re-configurar IDs, ver arriba)
+│   ├── chain_arquitectura_lineal.json
+│   ├── tree_arquitectura_arbol.json
+│   └── graph_arquitectura_grafos.json
 ├── models/
 │   └── trace/                  # Pesos del modelo TRACE-DeBERTa (Git LFS)
 └── trace-module/
@@ -233,6 +276,9 @@ Asegúrate de que `requirements.txt` incluya la línea `--extra-index-url https:
 ### Streamlit se detiene al cerrar la sesión SSH
 Corre el proceso con `nohup` (ver sección "Cómo correr la aplicación") para que sobreviva al cierre de la terminal.
 
+### Error "flow not found" o "component not found" en Chain/Tree/Graph
+Los IDs hardcodeados en `ARQUITECTURAS` (`app_juez.py`) corresponden a la instancia original de Langflow donde se crearon los flujos. Si importaste los flujos en una instancia distinta, **debes actualizar esos IDs manualmente** — ver la sección [Configuración requerida para Chain/Tree/Graph](#-arquitecturas-de-evaluación-disponibles) más arriba.
+
 ---
 
 ## 📚 Referencias
@@ -246,4 +292,4 @@ Corre el proceso con `nohup` (ver sección "Cómo correr la aplicación") para q
 
 ## 📄 Licencia
 
-Este proyecto es de uso académico/investigación.
+Este proyecto es de uso académico/investigación. Ajusta esta sección según corresponda a tu contexto institucional.
