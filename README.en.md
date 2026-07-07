@@ -143,7 +143,7 @@ The result is a number between 0 and 1 — the higher it is, the sounder that sp
 - Python 3.11+
 - [OpenAI](https://platform.openai.com/) account and API Key (for Swarm mode)
 - [Deepgram](https://deepgram.com/) account and API Key (for transcription + diarization, all architectures)
-- (Optional) A deployed and reachable [Langflow](https://www.langflow.org/) instance, if using the Chain/Tree/Graph architectures — these also require a [Google AI Studio](https://aistudio.google.com/) (Gemini) API Key, configured inside Langflow
+- A deployed and reachable [Langflow](https://www.langflow.org/) instance, if using the Chain/Tree/Graph architectures — these also require a [Google AI Studio](https://aistudio.google.com/) (Gemini) API Key, configured inside Langflow
 - ~1GB of free disk space for the TRACE model weights
 
 ---
