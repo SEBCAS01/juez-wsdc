@@ -138,7 +138,7 @@ El resultado es un número entre 0 y 1 — mientras más alto, más sólida es l
 - Python 3.11+
 - Cuenta y API Key de [OpenAI](https://platform.openai.com/) (para el modo Swarm)
 - Cuenta y API Key de [Deepgram](https://deepgram.com/) (para transcripción + diarización, todas las arquitecturas)
-- (Opcional) Instancia de [Langflow](https://www.langflow.org/) desplegada y accesible, si se usarán las arquitecturas Chain/Tree/Graph
+- Instancia de [Langflow](https://www.langflow.org/) desplegada y accesible, si se usarán las arquitecturas Chain/Tree/Graph
 - ~1GB de espacio en disco libre para los pesos del modelo TRACE
 
 ---
